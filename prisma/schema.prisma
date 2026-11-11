@@ -251,6 +251,7 @@ model InventoryReservation {
   reservedAt    DateTime @default(now())
   releasedAt    DateTime? 
   reference     String?    // quoteId, orderId, etc.
+  idempotencyKey String?  @unique // Clave de idempotencia para evitar reservas duplicadas
   createdBy     String   @db.Uuid
   expiresAt     DateTime? 
 
@@ -261,6 +262,7 @@ model InventoryReservation {
   @@index([createdBy])
   @@index([status])
   @@index([expiresAt])
+  @@index([idempotencyKey])
 }
 
 model Quote {

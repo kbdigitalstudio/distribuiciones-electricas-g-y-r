@@ -133,6 +133,7 @@ export const CreateInventoryReservationSchema = z.object({
   quantity: z.number().int().positive("La cantidad debe ser mayor a cero"),
   reference: z.string().max(255).optional().nullable(),
   expiresAt: z.string().datetime().optional().nullable(),
+  idempotencyKey: z.string().max(255).optional().nullable(),
 });
 
 export const PaginationSchema = z.object({

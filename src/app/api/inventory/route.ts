@@ -18,8 +18,12 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
   }
 
-  // INVENTARIO se mapea a rol VENDEDOR (nivel >= 2) o ADMIN
-  if (!hasMinRole(auth.roles, "VENDEDOR")) {
+  // INVENTARIO como rol independiente (VENDEDOR mantiene compatibilidad con usuarios existentes)
+  function isInventoryAuthorized(roles: string[]): boolean {
+    return hasMinRole(roles, "INVENTARIO");
+  }
+
+  if (!isInventoryAuthorized(auth.roles)) {
     return NextResponse.json(
       { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
       { status: 403 }

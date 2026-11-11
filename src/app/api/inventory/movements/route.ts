@@ -8,6 +8,12 @@ import { RecordInventoryMovementSchema } from "@/lib/validations";
 
 export const dynamic = "force-dynamic";
 
+// Roles autorizados para operaciones de inventario (INVENTARIO como rol independiente,
+// VENDEDOR mantiene compatibilidad con usuarios existentes)
+function isInventoryAuthorized(roles: string[]): boolean {
+  return hasMinRole(roles, "INVENTARIO");
+}
+
 // GET /api/inventory/movements — Consultar movimientos de inventario (INVENTARIO/ADMIN)
 export async function GET(request: Request): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
@@ -18,7 +24,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (!hasMinRole(auth.roles, "VENDEDOR")) {
+  if (!isInventoryAuthorized(auth.roles)) {
     return NextResponse.json(
       { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
       { status: 403 }
@@ -90,7 +96,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (!hasMinRole(auth.roles, "VENDEDOR")) {
+  if (!isInventoryAuthorized(auth.roles)) {
     return NextResponse.json(
       { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
       { status: 403 }
@@ -122,9 +128,14 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const { productId, movementType, quantity, reason, reference } = parsed.data;
 
-    // Usar transacción para garantizar atomicidad y evitar sobreventa
+    // Usar transacción con bloqueo de fila para garantizar atomicidad y evitar sobreventa
     const result = await db.$transaction(async (tx: any) => {
-      // Bloquear el registro de inventario para evitar condiciones de carrera
+      // BLOQUEO DE FILA: SELECT FOR UPDATE para evitar condiciones de carrera.
+      // Bloquea la fila de inventario hasta que termine la transacción.
+      await tx.$queryRaw<any>`
+        SELECT * FROM "Inventory" WHERE "productId" = ${productId} FOR UPDATE
+      `;
+
       const inventory = await tx.inventory.findUnique({
         where: { productId },
       });

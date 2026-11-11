@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 const ROLE_LEVELS: Record<string, number> = {
   CLIENTE: 1,
   VENDEDOR: 2,
+  INVENTARIO: 2,
   ADMIN: 3,
 };
 

@@ -8,6 +8,12 @@ import { CreateInventoryReservationSchema } from "@/lib/validations";
 
 export const dynamic = "force-dynamic";
 
+// Roles autorizados para operaciones de inventario (INVENTARIO como rol independiente,
+// VENDEDOR mantiene compatibilidad con usuarios existentes)
+function isInventoryAuthorized(roles: string[]): boolean {
+  return hasMinRole(roles, "INVENTARIO");
+}
+
 // POST /api/inventory/reservations — Crear reserva (INVENTARIO/ADMIN)
 export async function POST(request: Request): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
@@ -18,7 +24,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (!hasMinRole(auth.roles, "VENDEDOR")) {
+  if (!isInventoryAuthorized(auth.roles)) {
     return NextResponse.json(
       { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
       { status: 403 }
@@ -48,9 +54,43 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    const { productId, quantity, reference, expiresAt } = parsed.data;
+    const { productId, quantity, reference, expiresAt, idempotencyKey } = parsed.data;
+
+    // Idempotencia: si se proporciona una clave, verificar si ya existe una reserva
+    // con esa clave para evitar duplicados en solicitudes concurrentes
+    if (idempotencyKey) {
+      const existingReservation = await db.inventoryReservation.findUnique({
+        where: { idempotencyKey },
+      });
+
+      if (existingReservation) {
+        // Devolver la reserva existente en lugar de crear una nueva
+        return NextResponse.json(
+          {
+            success: true,
+            reservation: {
+              id: existingReservation.id,
+              productId: existingReservation.productId,
+              quantity: existingReservation.quantity,
+              status: existingReservation.status,
+              reservedAt: existingReservation.reservedAt,
+              expiresAt: existingReservation.expiresAt,
+            },
+            message: "Reserva ya existe para esta clave de idempotencia",
+          },
+          { status: 200 }
+        );
+      }
+    }
 
     const result = await db.$transaction(async (tx: any) => {
+      // BLOQUEO DE FILA: SELECT FOR UPDATE para evitar condiciones de carrera.
+      // Esto bloquea la fila de inventario hasta que termine la transacción,
+      // impidiendo que otra transacción lea o modifique las existencias simultáneamente.
+      await tx.$queryRaw<any>`
+        SELECT * FROM "Inventory" WHERE "productId" = ${productId} FOR UPDATE
+      `;
+
       const inventory = await tx.inventory.findUnique({
         where: { productId },
       });
@@ -72,12 +112,13 @@ export async function POST(request: Request): Promise<NextResponse> {
           quantity,
           status: "ACTIVE",
           reference: reference ?? null,
+          idempotencyKey: idempotencyKey ?? null,
           createdBy: auth.session.userId,
           expiresAt: expiresAt ? new Date(expiresAt) : null,
         },
       });
 
-      // Actualizar cantidad reservada
+      // Actualizar cantidad reservada dentro del mismo bloqueo
       await tx.inventory.update({
         where: { productId },
         data: {
@@ -98,6 +139,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           productId,
           quantity,
           reference,
+          idempotencyKey,
           reservedBy: auth.session.userId,
         },
       },
@@ -134,6 +176,17 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
+    // Error de restricción UNIQUE en idempotencyKey (condición de carrera en idempotencia)
+    if (error.code === "P2002" && error.meta?.target?.includes("idempotencyKey")) {
+      return NextResponse.json(
+        {
+          error: "Ya existe una reserva con esta clave de idempotencia",
+          code: "IDEMPOTENCY_KEY_DUPLICATE",
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Error interno del servidor", code: "INTERNAL_ERROR" },
       { status: 500 }
@@ -144,7 +197,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 // DELETE /api/inventory/reservations/[id] — Liberar reserva (INVENTARIO/ADMIN)
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ [key: string]: string }> }
 ): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
   if ("error" in auth) {
@@ -154,7 +207,7 @@ export async function DELETE(
     );
   }
 
-  if (!hasMinRole(auth.roles, "VENDEDOR")) {
+  if (!isInventoryAuthorized(auth.roles)) {
     return NextResponse.json(
       { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
       { status: 403 }
@@ -173,6 +226,11 @@ export async function DELETE(
     const { id } = await params;
 
     const result = await db.$transaction(async (tx: any) => {
+      // BLOQUEO DE FILA: bloquear la reserva y el inventario relacionado
+      await tx.$queryRaw<any>`
+        SELECT * FROM "InventoryReservation" WHERE "id" = ${id} FOR UPDATE
+      `;
+
       const reservation = await tx.inventoryReservation.findUnique({
         where: { id },
       });
@@ -184,6 +242,11 @@ export async function DELETE(
       if (reservation.status !== "ACTIVE") {
         throw new Error("RESERVA_NO_ACTIVA");
       }
+
+      // BLOQUEO DE FILA: bloquear el inventario del producto para actualizar cantidad reservada
+      await tx.$queryRaw<any>`
+        SELECT * FROM "Inventory" WHERE "productId" = ${reservation.productId} FOR UPDATE
+      `;
 
       // Liberar reserva: disminuir cantidad reservada
       await tx.inventory.update({
