@@ -1,0 +1,390 @@
+// Prisma Schema — GYR Backend (Etapa 2)
+// Base de datos: PostgreSQL
+// Nota: No se cargan datos comerciales inventados.
+// Para aplicar: crear base de datos PostgreSQL, copiar .env.example a .env,
+// configurar DATABASE_URL, luego ejecutar: npx prisma db push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PersonType {
+  NATURAL
+  JURIDICA
+}
+
+enum DocumentType {
+  CC
+  CE
+  NIT
+  PASSAPORTE
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id                String   @id @default(uuid()) @db.Uuid
+  email             String   @unique 
+  passwordHash      String   
+  nombre            String   
+  telefono          String   
+  direccion         String   
+  ciudad            String   
+  departamento      String   
+  isActive          Boolean  @default(true)
+  emailVerifiedAt   DateTime? 
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  roles             UserRole[]
+  customer          Customer?
+  quotes            Quote[]
+  orders            Order[]
+  operationLogs     OperationLog[]
+  loginAttempts     LoginAttempt[]
+  inventoryMovements InventoryMovement[]
+  inventoryReservations InventoryReservation[]
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique 
+  description String?   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userRoles   UserRole[]
+  permissions RolePermission[]
+
+  @@index([name])
+}
+
+model Permission {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique 
+  resource  String   
+  action    String   
+  createdAt DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([resource, action])
+}
+
+model UserRole {
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.Uuid
+  role   Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId String @db.Uuid
+  assignedAt DateTime @default(now())
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  role       Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId     String @db.Uuid
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permissionId String @db.Uuid
+
+  @@id([roleId, permissionId])
+}
+
+model Customer {
+  id            String      @id @default(uuid()) @db.Uuid
+  userId        String?     @unique  @db.Uuid
+  personType    PersonType  @default(NATURAL)
+  documentType  DocumentType @default(CC)
+  documentNumber String?    @unique  
+  razonSocial   String?      
+  primerNombre  String?      
+  primerApellido String?    
+  ciudad        String?      
+  departamento  String?      
+  direccion     String?      
+  telefono      String?      
+  email         String?      
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  quotes        Quote[]
+  orders        Order[]
+
+  @@index([userId])
+  @@index([documentNumber])
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   
+  slug        String   @unique 
+  description String?   @db.Text
+  imageUrl    String?   
+  parentId    String?   @db.Uuid
+  level       Int      @default(0)
+  isActive    Boolean  @default(true)
+  deletedAt   DateTime? 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent      Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]  @relation("CategoryHierarchy")
+  productsByCategory Product[] @relation("ProductCategory")
+  productsBySubcategory Product[] @relation("ProductSubcategory")
+
+  @@index([parentId])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Product {
+  id                String   @id @default(uuid()) @db.Uuid
+  categoryId        String   @db.Uuid
+  subcategoryId     String?   @db.Uuid
+  slug              String   @unique 
+  name              String   
+  description       String?   @db.Text
+    shortDescription String?  
+  sku               String?  @unique  
+  imageUrl          String?   
+  isActive          Boolean  @default(true)
+  deletedAt         DateTime? 
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  category          Category @relation("ProductCategory", fields: [categoryId], references: [id])
+  subcategory       Category? @relation("ProductSubcategory", fields: [subcategoryId], references: [id])
+  prices            Price[]
+  inventory         Inventory?
+  inventoryMovements InventoryMovement[]
+  inventoryReservations InventoryReservation[]
+  quoteItems        QuoteItem[]
+  orderItems        OrderItem[]
+
+  @@index([categoryId])
+  @@index([subcategoryId])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Price {
+  id          String   @id @default(uuid()) @db.Uuid
+  productId   String   @db.Uuid
+  priceCents  BigInt   @db.BigInt
+  currency    String   @default("COP") 
+  validFrom   DateTime @default(now())
+  validTo     DateTime? 
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  product     Product @relation(fields: [productId], references: [id])
+  quoteItems  QuoteItem[]
+  orderItems  OrderItem[]
+
+  @@index([productId])
+  @@index([isActive])
+  @@index([validFrom, validTo])
+}
+
+model Inventory {
+  id               String   @id @default(uuid()) @db.Uuid
+  productId        String   @unique @db.Uuid
+  quantityOnHand   Int      @default(0)
+  quantityReserved Int      @default(0)
+  minStockAlert    Int      @default(0)
+  updatedAt        DateTime @updatedAt
+
+  product          Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+}
+
+model InventoryMovement {
+  id            String   @id @default(uuid()) @db.Uuid
+  productId     String   @db.Uuid
+  movementType  String    // ENTRY, EXIT, ADJUSTMENT, RESERVATION, RELEASE
+  quantity      Int      @db.Integer
+  previousQuantity Int   @db.Integer
+  newQuantity   Int      @db.Integer
+  reason        String   
+  reference     String?    // orderId, quoteId, adjustmentId, etc.
+  createdBy     String   @db.Uuid
+  createdAt     DateTime @default(now())
+
+  product       Product  @relation(fields: [productId], references: [id])
+  user          User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([movementType])
+}
+
+model InventoryReservation {
+  id            String   @id @default(uuid()) @db.Uuid
+  productId     String   @db.Uuid
+  quantity      Int      @db.Integer
+  status        String    @default("ACTIVE") // ACTIVE, RELEASED, EXPIRED, CONSUMED
+  reservedAt    DateTime @default(now())
+  releasedAt    DateTime? 
+  reference     String?    // quoteId, orderId, etc.
+  createdBy     String   @db.Uuid
+  expiresAt     DateTime? 
+
+  product       Product  @relation(fields: [productId], references: [id])
+  user          User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([createdBy])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Quote {
+  id           String     @id @default(uuid()) @db.Uuid
+  customerId   String     @db.Uuid
+  userId       String     @db.Uuid
+  quoteNumber  String     @unique 
+  status       QuoteStatus @default(DRAFT)
+  subtotalCents BigInt    @db.BigInt
+  taxCents     BigInt     @db.BigInt
+  totalCents   BigInt     @db.BigInt
+  validUntil   DateTime
+  notes        String?     @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+  items        QuoteItem[]
+  orders       Order[]   @relation("OrderQuote")
+
+  @@index([customerId])
+  @@index([userId])
+  @@index([quoteNumber])
+  @@index([status])
+  @@index([validUntil])
+}
+
+model QuoteItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  quoteId       String   @db.Uuid
+  productId     String   @db.Uuid
+  priceId       String   @db.Uuid
+  quantity      Int
+  unitPriceCents BigInt @db.BigInt
+  subtotalCents BigInt @db.BigInt
+
+  quote         Quote   @relation(fields: [quoteId], references: [id])
+  product       Product @relation(fields: [productId], references: [id])
+  price         Price   @relation(fields: [priceId], references: [id])
+
+  @@index([quoteId])
+  @@index([productId])
+  @@index([priceId])
+}
+
+model Order {
+  id              String      @id @default(uuid()) @db.Uuid
+  customerId      String      @db.Uuid
+  userId          String      @db.Uuid
+  orderNumber     String      @unique 
+  quoteId         String?      @db.Uuid
+  status          OrderStatus  @default(PENDING_PAYMENT)
+  subtotalCents   BigInt      @db.BigInt
+  taxCents        BigInt      @db.BigInt
+  totalCents      BigInt      @db.BigInt
+  paymentMethod   String?      
+  paymentReference String?     
+  paidAt          DateTime?   
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  customer        Customer   @relation(fields: [customerId], references: [id])
+  user            User       @relation(fields: [userId], references: [id])
+  quote           Quote?     @relation("OrderQuote", fields: [quoteId], references: [id])
+  items           OrderItem[]
+
+  @@index([customerId])
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([quoteId])
+  @@index([status])
+  @@index([paidAt])
+}
+
+model OrderItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  orderId       String   @db.Uuid
+  productId     String   @db.Uuid
+  priceId       String   @db.Uuid
+  quantity      Int
+  unitPriceCents BigInt @db.BigInt
+  subtotalCents BigInt @db.BigInt
+
+  order         Order   @relation(fields: [orderId], references: [id])
+  product       Product @relation(fields: [productId], references: [id])
+  price         Price   @relation(fields: [priceId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([priceId])
+}
+
+model OperationLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?   @db.Uuid
+  action      String   
+  entityType  String   
+  entityId    String?   
+  details     Json?    
+  ipAddress   String?   
+  userAgent   String?   
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?   @db.Uuid
+  email     String   
+  ipAddress String   
+  success   Boolean  @default(false)
+  attemptedAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([email])
+  @@index([ipAddress])
+  @@index([attemptedAt])
+}
