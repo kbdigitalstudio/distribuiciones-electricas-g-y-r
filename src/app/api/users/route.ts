@@ -6,8 +6,6 @@ import { getAuthenticatedUser, requireRole, hasRole } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 import { CreateCustomerSchema, PaginationSchema } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/users — Listar usuarios (solo ADMIN)
 export async function GET(request: Request): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
@@ -36,7 +34,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   return NextResponse.json({
     success: true,
-    users: users.map((u: any) => ({
+    users: users.map((u) => ({
       id: u.id,
       email: u.email,
       nombre: u.nombre,
@@ -45,7 +43,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       departamento: u.departamento,
       isActive: u.isActive,
       createdAt: u.createdAt,
-      roles: u.roles.map((r: any) => r.role.name),
+      roles: u.roles.map((r) => r.role.name),
       customer: u.customer,
     })),
     page,
@@ -147,7 +145,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         id: user.id,
         email: user.email,
         nombre: user.nombre,
-        roles: user.roles.map((r: any) => r.role.name),
+        roles: user.roles.map((r) => r.role.name),
       },
     }, { status: 201 });
   } catch (error) {

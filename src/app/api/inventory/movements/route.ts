@@ -1,17 +1,30 @@
 "use node";
 
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { getAuthenticatedUser, requireRole, hasMinRole } from "@/lib/authz";
+import { getAuthenticatedUser } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 import { RecordInventoryMovementSchema } from "@/lib/validations";
+import { canAccessInventory } from "@/lib/roles";
+import {
+  applyInventoryMovement,
+  InventoryRuleError,
+} from "@/lib/inventory-rules";
+import { lockInventoryRow } from "@/lib/inventory-locks";
 
-export const dynamic = "force-dynamic";
+class InventoryNotFoundError extends Error {
+  constructor() {
+    super("INVENTARIO_NO_ENCONTRADO");
+    this.name = "InventoryNotFoundError";
+  }
+}
 
-// Roles autorizados para operaciones de inventario (INVENTARIO como rol independiente,
-// VENDEDOR mantiene compatibilidad con usuarios existentes)
-function isInventoryAuthorized(roles: string[]): boolean {
-  return hasMinRole(roles, "INVENTARIO");
+function isPrismaError(error: unknown, code: string): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === code
+  );
 }
 
 // GET /api/inventory/movements — Consultar movimientos de inventario (INVENTARIO/ADMIN)
@@ -24,17 +37,17 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (!isInventoryAuthorized(auth.roles)) {
+  if (!canAccessInventory(auth.roles)) {
     return NextResponse.json(
-      { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
+      { error: "Acceso denegado: se requiere rol INVENTARIO o ADMIN", code: "FORBIDDEN" },
       { status: 403 }
     );
   }
 
   try {
     const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get("page")) ?? 1;
-    const pageSize = Number(searchParams.get("pageSize")) ?? 20;
+    const page = Number(searchParams.get("page")) || 1;
+    const pageSize = Number(searchParams.get("pageSize")) || 20;
     const productId = searchParams.get("productId") ?? undefined;
     const movementType = searchParams.get("movementType") ?? undefined;
 
@@ -58,7 +71,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      movements: movements.map((m: any) => ({
+      movements: movements.map((m) => ({
         id: m.id,
         product: m.product,
         movementType: m.movementType,
@@ -87,6 +100,12 @@ export async function GET(request: Request): Promise<NextResponse> {
 }
 
 // POST /api/inventory/movements — Registrar movimiento (INVENTARIO/ADMIN)
+//
+// Concurrencia:
+// - SELECT ... FOR UPDATE sobre Inventory antes de leer/escribir.
+// - Todas las reglas de cantidades pasan por applyInventoryMovement(), que
+//   garantiza quantityOnHand >= quantityReserved >= 0.
+// - El movimiento y su OperationLog se escriben en la misma transacción.
 export async function POST(request: Request): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
   if ("error" in auth) {
@@ -96,9 +115,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (!isInventoryAuthorized(auth.roles)) {
+  if (!canAccessInventory(auth.roles)) {
     return NextResponse.json(
-      { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
+      { error: "Acceso denegado: se requiere rol INVENTARIO o ADMIN", code: "FORBIDDEN" },
       { status: 403 }
     );
   }
@@ -128,106 +147,74 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const { productId, movementType, quantity, reason, reference } = parsed.data;
 
-    // Usar transacción con bloqueo de fila para garantizar atomicidad y evitar sobreventa
-    const result = await db.$transaction(async (tx: any) => {
-      // BLOQUEO DE FILA: SELECT FOR UPDATE para evitar condiciones de carrera.
-      // Bloquea la fila de inventario hasta que termine la transacción.
-      await tx.$queryRaw<any>`
-        SELECT * FROM "Inventory" WHERE "productId" = ${productId} FOR UPDATE
-      `;
+    const result = await db.$transaction(
+      async (tx) => {
+        // ORDEN DE BLOQUEO: Inventory primero.
+        await lockInventoryRow(tx, productId);
 
-      const inventory = await tx.inventory.findUnique({
-        where: { productId },
-      });
+        const inventory = await tx.inventory.findUnique({
+          where: { productId },
+        });
 
-      if (!inventory) {
-        throw new Error("INVENTARIO_NO_ENCONTRADO");
-      }
+        if (!inventory) {
+          throw new InventoryNotFoundError();
+        }
 
-      const previousQuantity = inventory.quantityOnHand;
-      let newQuantity: number;
+        const previousQuantity = inventory.quantityOnHand;
 
-      switch (movementType) {
-        case "ENTRY":
-          newQuantity = previousQuantity + quantity;
-          break;
-        case "EXIT":
-          if (previousQuantity < quantity) {
-            throw new Error("STOCK_INSUFICIENTE");
-          }
-          newQuantity = previousQuantity - quantity;
-          break;
-        case "ADJUSTMENT":
-          newQuantity = quantity; // Ajuste directo al valor indicado
-          break;
-        case "RESERVATION":
-          if (previousQuantity < quantity) {
-            throw new Error("STOCK_INSUFICIENTE");
-          }
-          newQuantity = previousQuantity; // Reservar no cambia onHand, cambia reserved
-          break;
-        case "RELEASE":
-          newQuantity = previousQuantity;
-          break;
-        default:
-          throw new Error("TIPO_MOVIMIENTO_INVALIDO");
-      }
-
-      if (newQuantity < 0) {
-        throw new Error("CANTIDAD_NEGATIVA");
-      }
-
-      // Actualizar inventario
-      const updateData: Record<string, unknown> = {
-        quantityOnHand: newQuantity,
-      };
-
-      if (movementType === "RESERVATION") {
-        updateData.quantityReserved = inventory.quantityReserved + quantity;
-      } else if (movementType === "RELEASE") {
-        updateData.quantityReserved = Math.max(
-          0,
-          inventory.quantityReserved - quantity
+        // Reglas puras: valida disponibilidad, reservas y cantidades negativas.
+        const next = applyInventoryMovement(
+          inventory,
+          movementType,
+          quantity
         );
-      }
 
-      const updatedInventory = await tx.inventory.update({
-        where: { productId },
-        data: updateData,
-      });
+        const updatedInventory = await tx.inventory.update({
+          where: { productId },
+          data: {
+            quantityOnHand: next.quantityOnHand,
+            quantityReserved: next.quantityReserved,
+          },
+        });
 
-      // Registrar movimiento
-      const movement = await tx.inventoryMovement.create({
-        data: {
-          productId,
-          movementType,
-          quantity,
-          previousQuantity,
-          newQuantity,
-          reason,
-          reference: reference ?? null,
-          createdBy: auth.session.userId,
-        },
-      });
+        const movement = await tx.inventoryMovement.create({
+          data: {
+            productId,
+            movementType,
+            quantity,
+            previousQuantity,
+            newQuantity: next.quantityOnHand,
+            reason,
+            reference: reference ?? null,
+            createdBy: auth.session.userId,
+          },
+        });
 
-      return { inventory: updatedInventory, movement };
-    });
+        await tx.operationLog.create({
+          data: {
+            userId: auth.session.userId,
+            action: "INVENTORY_MOVEMENT",
+            entityType: "InventoryMovement",
+            entityId: movement.id,
+            details: {
+              productId,
+              movementType,
+              quantity,
+              reason,
+              reference: reference ?? null,
+              performedBy: auth.session.userId,
+            },
+          },
+        });
 
-    await db.operationLog.create({
-      data: {
-        userId: auth.session.userId,
-        action: "INVENTORY_MOVEMENT",
-        entityType: "InventoryMovement",
-        entityId: result.movement.id,
-        details: {
-          productId,
-          movementType,
-          quantity,
-          reason,
-          performedBy: auth.session.userId,
-        },
+        return { inventory: updatedInventory, movement };
       },
-    });
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+        timeout: 15000,
+        maxWait: 10000,
+      }
+    );
 
     return NextResponse.json(
       {
@@ -251,27 +238,44 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error registrando movimiento de inventario:", error);
 
-    if (error.message === "INVENTARIO_NO_ENCONTRADO") {
+    if (error instanceof InventoryNotFoundError) {
       return NextResponse.json(
-        { error: "Inventario no encontrado para este producto", code: "INVENTARIO_NO_ENCONTRADO" },
+        {
+          error: "Inventario no encontrado para este producto",
+          code: "INVENTARIO_NO_ENCONTRADO",
+        },
         { status: 404 }
       );
     }
 
-    if (error.message === "STOCK_INSUFICIENTE") {
+    if (error instanceof InventoryRuleError) {
+      if (error.code === "INVENTARIO_INCONSISTENTE") {
+        return NextResponse.json(
+          {
+            error: "El inventario se encuentra en un estado inconsistente",
+            code: "INVENTARIO_INCONSISTENTE",
+          },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json(
-        { error: "Stock insuficiente para realizar el movimiento", code: "STOCK_INSUFICIENTE" },
+        { error: error.message, code: error.code },
         { status: 400 }
       );
     }
 
-    if (error.message === "CANTIDAD_NEGATIVA") {
+    if (isPrismaError(error, "P2028")) {
       return NextResponse.json(
-        { error: "La cantidad resultante no puede ser negativa", code: "CANTIDAD_NEGATIVA" },
-        { status: 400 }
+        {
+          error:
+            "La operación de inventario excedió el tiempo de espera por concurrencia; reintente",
+          code: "TRANSACTION_TIMEOUT",
+        },
+        { status: 503 }
       );
     }
 

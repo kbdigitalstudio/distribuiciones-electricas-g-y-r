@@ -4,8 +4,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(): Promise<NextResponse> {
   try {
     const session = await getSession();
@@ -44,7 +42,7 @@ export async function GET(): Promise<NextResponse> {
         departamento: user.departamento,
         isActive: user.isActive,
         emailVerifiedAt: user.emailVerifiedAt,
-        roles: user.roles.map((r: any) => r.role.name),
+        roles: user.roles.map((r) => r.role.name),
         customer: user.customer,
       },
     });

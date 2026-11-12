@@ -9,8 +9,6 @@ import {
   PaginationSchema,
 } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/categories — Listar categorías (público: solo activas)
 // Query: page, pageSize, search, parentId, isActive
 export async function GET(request: Request): Promise<NextResponse> {
@@ -74,7 +72,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      categories: categories.map((c: any) => ({
+      categories: categories.map((c) => ({
         id: c.id,
         name: c.name,
         slug: c.slug,

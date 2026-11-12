@@ -6,8 +6,6 @@ import { getAuthenticatedUser, requireRole, canModifyUser } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 import { UpdateProductSchema } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 async function authAndAuthorize(
   request: Request,
   productId: string,

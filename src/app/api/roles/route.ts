@@ -5,8 +5,6 @@ import { db } from "@/lib/db";
 import { getAuthenticatedUser, requireRole } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/roles — Listar roles (solo ADMIN)
 export async function GET(request: Request): Promise<NextResponse> {
   const auth = await getAuthenticatedUser(request);
@@ -29,11 +27,11 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   return NextResponse.json({
     success: true,
-    roles: roles.map((r: any) => ({
+    roles: roles.map((r) => ({
       id: r.id,
       name: r.name,
       description: r.description,
-      permissions: r.permissions.map((rp: any) => rp.permission),
+      permissions: r.permissions.map((rp) => rp.permission),
       userCount: r._count.userRoles,
     })),
   });
@@ -75,7 +73,9 @@ export async function POST(request: Request): Promise<NextResponse> {
         description: description ?? null,
         permissions: permissionIds && Array.isArray(permissionIds)
           ? {
-              connect: permissionIds.map((id: string) => ({ id })),
+              create: permissionIds.map((permissionId: string) => ({
+                permission: { connect: { id: permissionId } },
+              })),
             }
           : undefined,
       },

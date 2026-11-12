@@ -6,8 +6,6 @@ import { getAuthenticatedUser, requireRole } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 import { RegisterPriceSchema, PaginationSchema } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/products/[id]/prices — Consultar historial de precios (público)
 export async function GET(
   request: Request,
@@ -45,7 +43,7 @@ export async function GET(
     return NextResponse.json({
       success: true,
       product: { id: product.id, name: product.name, slug: product.slug },
-      prices: prices.map((p: any) => ({
+      prices: prices.map((p) => ({
         id: p.id,
         amountInCents: p.priceCents,
         currency: p.currency,

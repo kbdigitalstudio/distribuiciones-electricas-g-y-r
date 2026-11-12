@@ -16,8 +16,6 @@ import { generateCsrfToken } from "@/lib/auth";
 const MAX_LOGIN_ATTEMPTS = Number(process.env.MAX_LOGIN_ATTEMPTS ?? 5);
 const LOCKOUT_MINUTES = Number(process.env.LOCKOUT_MINUTES ?? 15);
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: Request): Promise<NextResponse> {
   const ip =
     request.headers.get("x-forwarded-for") ??

@@ -9,8 +9,6 @@ import {
   PaginationSchema,
 } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/products — Listar productos (público: solo activos)
 // Query: page, pageSize, search, categoryId, isActive
 export async function GET(request: Request): Promise<NextResponse> {
@@ -83,7 +81,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      products: products.map((p: any) => ({
+      products: products.map((p) => ({
         id: p.id,
         slug: p.slug,
         name: p.name,

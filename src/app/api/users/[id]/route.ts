@@ -5,8 +5,6 @@ import { db } from "@/lib/db";
 import { getAuthenticatedUser, requireRole, canModifyUser } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 
-export const dynamic = "force-dynamic";
-
 async function authAndAuthorize(request: Request, userId: string, requireAdmin: boolean) {
   const auth = await getAuthenticatedUser(request);
   if ("error" in auth) {
@@ -54,7 +52,7 @@ export async function GET(
       ciudad: user.ciudad,
       departamento: user.departamento,
       isActive: user.isActive,
-      roles: user.roles.map((r: any) => r.role.name),
+      roles: user.roles.map((r) => r.role.name),
       customer: user.customer,
     },
   });
@@ -124,7 +122,7 @@ export async function PUT(
         id: user.id,
         email: user.email,
         nombre: user.nombre,
-        roles: user.roles.map((r: any) => r.role.name),
+        roles: user.roles.map((r) => r.role.name),
       },
     });
   } catch (error) {

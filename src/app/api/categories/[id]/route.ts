@@ -6,8 +6,6 @@ import { getAuthenticatedUser, requireRole } from "@/lib/authz";
 import { validateCsrfToken } from "@/lib/session";
 import { UpdateCategorySchema } from "@/lib/validations";
 
-export const dynamic = "force-dynamic";
-
 async function authAndAdmin(
   request: Request
 ) {

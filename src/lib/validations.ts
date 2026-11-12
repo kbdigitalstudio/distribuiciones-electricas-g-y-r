@@ -133,7 +133,13 @@ export const CreateInventoryReservationSchema = z.object({
   quantity: z.number().int().positive("La cantidad debe ser mayor a cero"),
   reference: z.string().max(255).optional().nullable(),
   expiresAt: z.string().datetime().optional().nullable(),
-  idempotencyKey: z.string().max(255).optional().nullable(),
+  idempotencyKey: z
+    .string()
+    .trim()
+    .min(1, "La clave de idempotencia no puede estar vacía")
+    .max(255, "La clave de idempotencia no puede superar 255 caracteres")
+    .optional()
+    .nullable(),
 });
 
 export const PaginationSchema = z.object({

@@ -2,9 +2,8 @@
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getAuthenticatedUser, requireRole, hasMinRole } from "@/lib/authz";
-
-export const dynamic = "force-dynamic";
+import { getAuthenticatedUser } from "@/lib/authz";
+import { canAccessInventory } from "@/lib/roles";
 
 // GET /api/inventory/[productId] — Consultar inventario de producto (INVENTARIO/ADMIN)
 export async function GET(
@@ -19,14 +18,9 @@ export async function GET(
     );
   }
 
-  // INVENTARIO como rol independiente (VENDEDOR mantiene compatibilidad con usuarios existentes)
-  function isInventoryAuthorized(roles: string[]): boolean {
-    return hasMinRole(roles, "INVENTARIO");
-  }
-
-  if (!isInventoryAuthorized(auth.roles)) {
+  if (!canAccessInventory(auth.roles)) {
     return NextResponse.json(
-      { error: "Acceso denegado: rol insuficiente", code: "FORBIDDEN" },
+      { error: "Acceso denegado: se requiere rol INVENTARIO o ADMIN", code: "FORBIDDEN" },
       { status: 403 }
     );
   }

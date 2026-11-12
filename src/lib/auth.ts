@@ -2,7 +2,10 @@
 
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, {
+  type SignOptions,
+  type VerifyOptions,
+} from "jsonwebtoken";
 
 // ------------------------------------------------------------
 // Hash de contraseñas (bcrypt como alternativa robusta a Argon2id)
@@ -46,7 +49,7 @@ export type TokenPayload = {
 };
 
 type JwtSignOptions = {
-  expiresIn?: string;
+  expiresIn?: SignOptions["expiresIn"];
   issuer?: string;
   audience?: string;
 };
@@ -54,17 +57,17 @@ type JwtSignOptions = {
 function signToken(
   secret: string,
   payload: object,
-  opts: JwtSignOptions
+  opts: SignOptions
 ): string {
-  return jwt.sign(payload, secret, opts as any);
+  return jwt.sign(payload, secret, opts);
 }
 
 function verifyToken<T = unknown>(
   token: string,
   secret: string,
-  opts: { issuer?: string; audience?: string }
+  opts: VerifyOptions
 ): T {
-  return jwt.verify(token, secret, opts as any) as T;
+  return jwt.verify(token, secret, opts) as T;
 }
 
 export function signAccessToken(
@@ -72,7 +75,9 @@ export function signAccessToken(
   opts?: JwtSignOptions
 ): string {
   return signToken(JWT_SECRET, payload, {
-    expiresIn: opts?.expiresIn ?? process.env.JWT_EXPIRES_IN ?? "15m",
+    expiresIn: (opts?.expiresIn ??
+      process.env.JWT_EXPIRES_IN ??
+      "15m") as SignOptions["expiresIn"],
     issuer: "gyr",
     audience: "gyr-app",
     ...opts,
@@ -84,7 +89,8 @@ export function signRefreshToken(payload: {
   email: string;
 }): string {
   return signToken(JWT_REFRESH_SECRET, payload, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? "7d",
+    expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ??
+      "7d") as SignOptions["expiresIn"],
     issuer: "gyr",
     audience: "gyr-app",
   });

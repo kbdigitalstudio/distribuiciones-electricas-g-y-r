@@ -3,8 +3,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/products/[id]/price — Consultar precio vigente (público)
 // Retorna null si no hay precio configurado (permite mostrar "A cotizar")
 export async function GET(

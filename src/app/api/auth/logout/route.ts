@@ -4,8 +4,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, clearSessionCookies } from "@/lib/session";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const session = await getSession();

@@ -3,8 +3,7 @@
  *
  * NOTA: Requiere ejecutar `npx prisma generate` después de instalar
  * dependencias y configurar DATABASE_URL, para que Prisma genere el
- * cliente tipado. Sin ese paso, la importación de PrismaClient fallará
- * en tiempo de ejecución (no en TypeScript, gracias al @ts-ignore).
+ * cliente tipado en node_modules/@prisma/client.
  *
  * En desarrollo local con hot-reload, se usa un singleton para evitar
  * múltiples instancias de PrismaClient.
@@ -12,7 +11,6 @@
 
 "use node";
 
-// @ts-ignore - PrismaClient se genera con `npx prisma generate`
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {

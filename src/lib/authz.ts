@@ -1,27 +1,22 @@
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import {
+  getRoleLevel,
+  hasRole,
+  hasMinRole,
+  hasAnyRole,
+  canAccessInventory,
+} from "@/lib/roles";
 
-// Roles jerárquicos: niveles para comparar privilegios
-const ROLE_LEVELS: Record<string, number> = {
-  CLIENTE: 1,
-  VENDEDOR: 2,
-  INVENTARIO: 2,
-  ADMIN: 3,
+// Re-exportar las reglas puras mantiene compatibilidad con los imports
+// existentes desde "@/lib/authz".
+export {
+  getRoleLevel,
+  hasRole,
+  hasMinRole,
+  hasAnyRole,
+  canAccessInventory,
 };
-
-export function getRoleLevel(role: string): number {
-  return ROLE_LEVELS[role] ?? 0;
-}
-
-export function hasRole(userRoles: string[], requiredRole: string): boolean {
-  return userRoles.includes(requiredRole);
-}
-
-export function hasMinRole(userRoles: string[], minRole: string): boolean {
-  const userLevel = Math.max(...userRoles.map((r: any) => getRoleLevel(r)));
-  const requiredLevel = getRoleLevel(minRole);
-  return userLevel >= requiredLevel;
-}
 
 export async function getAuthenticatedUser(request: Request) {
   const session = await getSession();
@@ -38,7 +33,7 @@ export async function getAuthenticatedUser(request: Request) {
     return { error: "Usuario no encontrado o inactivo", code: "USER_NOT_FOUND", status: 404 };
   }
 
-  const roles = user.roles.map((r: any) => r.role.name);
+  const roles = user.roles.map((r: { role: { name: string } }) => r.role.name);
   return { user, session, roles };
 }
 

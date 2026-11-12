@@ -7,8 +7,6 @@ import { hashPassword, genericAuthError, constantTimeDelay } from "@/lib/auth";
 import { setSessionCookies } from "@/lib/session";
 import { generateCsrfToken } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const body = await request.json();
