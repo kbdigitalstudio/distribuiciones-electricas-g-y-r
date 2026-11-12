@@ -1,5 +1,7 @@
+import type { Prisma } from "@prisma/client";
+
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession, type SessionUser } from "@/lib/session";
 import {
   getRoleLevel,
   hasRole,
@@ -18,7 +20,25 @@ export {
   canAccessInventory,
 };
 
-export async function getAuthenticatedUser(request: Request) {
+type AuthenticatedUserRecord = Prisma.UserGetPayload<{
+  include: { roles: { include: { role: true } } };
+}>;
+
+export interface AuthenticationSuccess {
+  user: AuthenticatedUserRecord;
+  session: SessionUser;
+  roles: string[];
+}
+
+export interface AuthenticationError {
+  error: string;
+  code: string;
+  status: number;
+}
+
+export async function getAuthenticatedUser(
+  request: Request
+): Promise<AuthenticationSuccess | AuthenticationError> {
   const session = await getSession();
   if (!session) {
     return { error: "No autenticado", code: "UNAUTHENTICATED", status: 401 };

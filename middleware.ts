@@ -23,13 +23,16 @@ const AUTH_REQUIRED_PATHS = [
   "/api/roles",
   "/api/admin",
   "/api/inventory",
+  "/api/customers",
+  "/api/quotes",
+  "/api/orders",
 ];
 
 // Rutas que requieren rol ADMIN
 const ADMIN_PATHS = ["/api/roles", "/api/admin"];
 
 /**
- * Middleware de protección de rutas para el backend GYR (Etapas 2 y 3).
+ * Middleware de protección de rutas para el backend GYR (Etapas 2, 3 y 4).
  *
  * - Verifica sesión válida (cookie HttpOnly) en rutas protegidas.
  * - Permite GET público en rutas de catálogo (productos, categorías).

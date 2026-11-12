@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
+import { CommercialPortal } from "@/components/commercial/commercial-portal";
 import type { User } from "@/types/user";
 
 const DEPARTAMENTOS = [
@@ -278,6 +279,8 @@ export default function PerfilPage() {
               </div>
             )}
           </div>
+
+          <CommercialPortal />
         </div>
       </main>
       <Footer />
