@@ -17,7 +17,7 @@ export default function TransformadoresPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Transformadores"
-          heroImage="/images/Transformadores.png"
+          heroImage="/images/transformadores.png"
           products={PRODUCTS}
         />
       </main>

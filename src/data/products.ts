@@ -166,7 +166,7 @@ export const PRODUCTS: Product[] = [
     slug: "transformador-distribucion-alt",
     name: "Transformador de Distribución",
     category: "Transformadores",
-    image: "/images/Transformadores.png",
+    image: "/images/transformadores.png",
   },
   // Tubería
   {

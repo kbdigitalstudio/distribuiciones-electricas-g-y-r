@@ -9,6 +9,9 @@ out/
 build/
 dist/
 
+# Vercel
+.vercel/
+
 # Variables de entorno
 .env
 .env.local
@@ -45,3 +48,6 @@ prisma/migrations/sqlite/
 # Backups locales de fases
 backup-fase*/
 backup-fase4*/
+
+.vercel
+.env*

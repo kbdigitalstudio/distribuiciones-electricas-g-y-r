@@ -37,9 +37,6 @@
   --shadow-btn-primary-hover: 0 5px 15px rgba(37, 211, 102, 0.3);
   --shadow-auth-btn: 0 4px 15px rgba(37, 211, 102, 0.3);
 
-  /* Tipografía */
-  --font-sora: var(--font-sora);
-
   /* Transiciones */
   --transition: all 0.3s ease;
   --transition-card: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -48,11 +45,16 @@
 }
 
 body {
-  background: var(--gyr-bg);
-  color: var(--gyr-text);
+  background: var(--color-gyr-bg);
+  color: var(--color-gyr-text);
   font-family: var(--font-sora);
   font-weight: 400;
   margin: 0;
+}
+
+/* Tailwind CSS 4 ya no centra `.container` automáticamente. */
+.container {
+  margin-inline: auto;
 }
 
 html {

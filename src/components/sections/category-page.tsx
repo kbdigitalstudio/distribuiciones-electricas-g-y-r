@@ -30,7 +30,7 @@ export function CategoryPage({ categoryName, heroImage, products }: CategoryPage
           <img
             src={imageUrl}
             alt="Hero background"
-            className="absolute inset-0 w-full h-full object-cover z-[-1]"
+            className="absolute inset-0 w-full h-full object-cover"
             decoding="async"
           />
         ) : null}

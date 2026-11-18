@@ -14,7 +14,7 @@ export function Hero({ title, subtitle, imageUrl }: HeroProps) {
         <img
           src={imageUrl}
           alt="Hero background"
-          className="absolute inset-0 w-full h-full object-cover z-[-1]"
+          className="absolute inset-0 w-full h-full object-cover"
           decoding="async"
         />
       ) : null}
@@ -44,7 +44,7 @@ export function HeroSmall({ title, imageUrl }: { title: string; imageUrl?: strin
         <img
           src={imageUrl}
           alt="Hero background"
-          className="absolute inset-0 w-full h-full object-cover z-[-1]"
+          className="absolute inset-0 w-full h-full object-cover"
           decoding="async"
         />
       ) : null}
