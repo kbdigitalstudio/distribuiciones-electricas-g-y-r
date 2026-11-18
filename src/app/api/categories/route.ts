@@ -18,7 +18,8 @@ export async function GET(request: Request): Promise<NextResponse> {
     const pageSize = Number(searchParams.get("pageSize")) ?? 20;
     const search = searchParams.get("search") ?? undefined;
     const parentId = searchParams.get("parentId") ?? undefined;
-    const isActiveParam = searchParams.get("isActive");
+    // ponytail: ver products/route.ts — `get()` devuelve null si no viene el param.
+    const isActiveParam = searchParams.get("isActive") ?? undefined;
 
     const where: Record<string, unknown> = {
       deletedAt: null,

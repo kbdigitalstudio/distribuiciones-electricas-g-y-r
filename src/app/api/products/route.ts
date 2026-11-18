@@ -18,7 +18,10 @@ export async function GET(request: Request): Promise<NextResponse> {
     const pageSize = Number(searchParams.get("pageSize")) ?? 20;
     const search = searchParams.get("search") ?? undefined;
     const categoryId = searchParams.get("categoryId") ?? undefined;
-    const isActiveParam = searchParams.get("isActive");
+    // ponytail: `get()` devuelve null (no undefined) si el param no viene; sin
+    // `?? undefined` el filtro `isActive=false` se activaba siempre y la ruta
+    // publica exigia rol ADMIN (401 para anonimos).
+    const isActiveParam = searchParams.get("isActive") ?? undefined;
 
     // Filtro base: solo productos no eliminados lógicamente
     const where: Record<string, unknown> = {
