@@ -555,7 +555,7 @@ export function CommercialPortal() {
   if (session.status === "anonymous") {
     return (
       <section className="mt-10 rounded-4xl border border-gyr-border-light bg-white p-8 shadow-sm">
-        <h2 className="text-2xl font-bold text-gyr-primary mb-3">
+        <h2 className="text-2xl font-bold text-gyr-primary-strong-strong mb-3">
           Actividad comercial
         </h2>
         <p className="text-gyr-text">
@@ -590,7 +590,7 @@ export function CommercialPortal() {
     <section className="mt-10 rounded-4xl border border-gyr-border-light bg-white p-6 md:p-8 shadow-sm">
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gyr-primary">
+          <h2 className="text-2xl font-bold text-gyr-primary-strong">
             Actividad comercial
           </h2>
           <p className="text-sm text-gyr-text">
@@ -612,7 +612,7 @@ export function CommercialPortal() {
           onClick={() => changeTab("quotes")}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
             tab === "quotes"
-              ? "bg-gyr-primary text-white"
+              ? "bg-gyr-primary-strong text-white"
               : "bg-gyr-surface-light text-gyr-heading hover:bg-gyr-border-light"
           }`}
         >
@@ -625,7 +625,7 @@ export function CommercialPortal() {
           onClick={() => changeTab("orders")}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
             tab === "orders"
-              ? "bg-gyr-primary text-white"
+              ? "bg-gyr-primary-strong text-white"
               : "bg-gyr-surface-light text-gyr-heading hover:bg-gyr-border-light"
           }`}
         >
@@ -639,7 +639,7 @@ export function CommercialPortal() {
             onClick={() => changeTab("customers")}
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               tab === "customers"
-                ? "bg-gyr-primary text-white"
+                ? "bg-gyr-primary-strong text-white"
                 : "bg-gyr-surface-light text-gyr-heading hover:bg-gyr-border-light"
             }`}
           >
@@ -662,13 +662,13 @@ export function CommercialPortal() {
                 ? "Buscar por nombre, documento o email"
                 : "Buscar por número o cliente"
             }
-            className="w-full rounded-lg border border-gyr-border bg-gyr-surface-light px-4 py-2 text-sm focus:border-gyr-primary focus:outline-none"
+            className="w-full rounded-lg border border-gyr-border bg-gyr-surface-light px-4 py-2 text-sm focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             aria-label="Buscar registros"
           />
           <button
             type="button"
             onClick={applySearch}
-            className="rounded-lg bg-gyr-primary px-4 py-2 text-sm font-semibold text-white hover:bg-gyr-primary-hover transition-colors"
+            className="rounded-lg bg-gyr-primary-strong px-4 py-2 text-sm font-semibold text-white hover:bg-gyr-primary-strong-hover transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
           >
             Buscar
           </button>
@@ -681,7 +681,7 @@ export function CommercialPortal() {
               setStatusFilter(event.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gyr-border bg-gyr-surface-light px-4 py-2 text-sm focus:border-gyr-primary focus:outline-none"
+            className="rounded-lg border border-gyr-border bg-gyr-surface-light px-4 py-2 text-sm focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             aria-label="Filtrar por estado"
           >
             <option value="">Todos los estados</option>
@@ -702,7 +702,7 @@ export function CommercialPortal() {
         <button
           type="button"
           onClick={() => setRefreshTick((value) => value + 1)}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gyr-border px-4 py-2 text-sm font-semibold text-gyr-heading hover:border-gyr-primary transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gyr-border px-4 py-2 text-sm font-semibold text-gyr-heading hover:border-gyr-primary-strong transition-colors"
         >
           <RefreshCw className="w-4 h-4" /> Actualizar
         </button>
@@ -856,7 +856,7 @@ export function CommercialPortal() {
                                 onClick={() =>
                                   changeQuoteStatus(quote, "SENT")
                                 }
-                                className="rounded-lg bg-gyr-primary px-3 py-2 text-xs font-semibold text-white hover:bg-gyr-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rounded-lg bg-gyr-primary-strong px-3 py-2 text-xs font-semibold text-white hover:bg-gyr-primary-strong-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
                               >
                                 Marcar enviada
                               </button>
@@ -881,7 +881,7 @@ export function CommercialPortal() {
                                 onClick={() =>
                                   changeQuoteStatus(quote, "ACCEPTED")
                                 }
-                                className="rounded-lg bg-gyr-primary px-3 py-2 text-xs font-semibold text-white hover:bg-gyr-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rounded-lg bg-gyr-primary-strong px-3 py-2 text-xs font-semibold text-white hover:bg-gyr-primary-strong-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
                               >
                                 Aceptar
                               </button>
@@ -916,7 +916,7 @@ export function CommercialPortal() {
                               type="button"
                               disabled={busy}
                               onClick={() => convertQuote(quote)}
-                              className="rounded-lg border border-gyr-primary px-3 py-2 text-xs font-semibold text-gyr-primary hover:bg-gyr-surface-alt disabled:cursor-not-allowed disabled:opacity-50"
+                              className="rounded-lg border border-gyr-primary-strong px-3 py-2 text-xs font-semibold text-gyr-primary-strong hover:bg-gyr-surface-alt disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
                             >
                               Convertir a pedido
                             </button>

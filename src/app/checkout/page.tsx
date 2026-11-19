@@ -51,7 +51,7 @@ export default function CheckoutPage() {
             <p className="text-gyr-text mb-6">Por favor inicia sesión para continuar con tu compra.</p>
             <button
               onClick={() => (window.location.href = "/")}
-              className="bg-gyr-primary text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-hover transition-colors duration-300"
+              className="bg-gyr-primary-strong text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               Ir al Inicio
             </button>
@@ -73,7 +73,7 @@ export default function CheckoutPage() {
             <p className="text-gyr-text mb-6">No se pudo cargar la sesión de usuario.</p>
             <button
               onClick={() => (window.location.href = "/")}
-              className="bg-gyr-primary text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-hover transition-colors duration-300"
+              className="bg-gyr-primary-strong text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               Ir al Inicio
             </button>
@@ -97,7 +97,7 @@ export default function CheckoutPage() {
             </p>
             <button
               onClick={() => (window.location.href = "/perfil")}
-              className="bg-gyr-primary text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-hover transition-colors duration-300"
+              className="bg-gyr-primary-strong text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               Ir a Mi Perfil
             </button>
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
             <p className="text-gyr-text mb-6">Agrega productos para continuar con tu compra</p>
             <button
               onClick={() => (window.location.href = "/catalogo")}
-              className="bg-gyr-primary text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-hover transition-colors duration-300"
+              className="bg-gyr-primary-strong text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               Ver Catálogo
             </button>
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
       <main className="flex-1">
         <div className="checkout-container max-w-5xl mx-auto py-12 px-4">
           <div className="checkout-header text-center mb-10">
-            <h1 className="text-3xl font-bold text-gyr-primary mb-2">Finalizar Compra</h1>
+            <h1 className="text-3xl font-bold text-gyr-primary-strong-strong mb-2">Finalizar Compra</h1>
             <p className="text-gyr-text">Revisa tu pedido y selecciona tu método de pago</p>
           </div>
 
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="summary-row total flex justify-between mt-4 pt-4 border-t border-gyr-border-light">
                   <span className="font-bold text-gyr-heading">Total:</span>
-                  <span className="font-bold text-gyr-primary">A cotizar</span>
+                  <span className="font-bold text-gyr-primary-strong">A cotizar</span>
                 </div>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function CheckoutPage() {
                   </div>
                   <a
                     href="/perfil"
-                    className="edit-profile-btn mt-4 inline-block bg-white text-gyr-primary font-semibold px-4 py-2 rounded-lg hover:bg-gyr-border-light transition-colors duration-300 text-sm"
+                    className="edit-profile-btn mt-4 inline-block bg-white text-gyr-primary-strong font-semibold px-4 py-2 rounded-lg hover:bg-gyr-border-light transition-colors duration-300 text-sm focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
                   >
                     ✏️ Editar Información
                   </a>
@@ -296,7 +296,7 @@ export default function CheckoutPage() {
                       value={selectedBank}
                       onChange={handleBankChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gyr-border rounded-lg bg-white focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                      className="w-full px-4 py-3 border-2 border-gyr-border rounded-lg bg-white focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                     >
                       {BANCOS_PSE.map((banco) => (
                         <option
@@ -328,7 +328,7 @@ export default function CheckoutPage() {
                         />
                         <label
                           htmlFor="natural"
-                          className="radio-label block p-4 border-2 border-gyr-border rounded-lg text-center cursor-pointer font-semibold transition-all duration-300 text-gyr-heading hover:border-gyr-primary"
+                          className="radio-label block p-4 border-2 border-gyr-border rounded-lg text-center cursor-pointer font-semibold transition-all duration-300 text-gyr-heading hover:border-gyr-primary-strong"
                           data-checked={personType === "natural"}
                         >
                           👤 Persona Natural
@@ -346,7 +346,7 @@ export default function CheckoutPage() {
                         />
                         <label
                           htmlFor="juridica"
-                          className="radio-label block p-4 border-2 border-gyr-border rounded-lg text-center cursor-pointer font-semibold transition-all duration-300 text-gyr-heading hover:border-gyr-primary"
+                          className="radio-label block p-4 border-2 border-gyr-border rounded-lg text-center cursor-pointer font-semibold transition-all duration-300 text-gyr-heading hover:border-gyr-primary-strong"
                           data-checked={personType === "juridica"}
                         >
                           🏢 Persona Jurídica

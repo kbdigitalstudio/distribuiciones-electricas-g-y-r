@@ -27,7 +27,7 @@ export function WhatsAppFloating() {
         </button>
         {popupOpen && (
           <div className="absolute bottom-[90px] right-0 w-72 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-gyr-primary text-white p-4 flex items-center gap-3">
+            <div className="bg-gyr-primary-strong text-white p-4 flex items-center gap-3">
               <img src="/images/whatsapp.png" alt="WhatsApp" className="w-6 h-6" />
               <h4 className="font-semibold">Chatea con nosotros</h4>
             </div>
@@ -37,11 +37,11 @@ export function WhatsAppFloating() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Escribe tu mensaje aquí..."
                 rows={3}
-                className="w-full p-2 border border-gyr-border rounded-lg text-sm focus:outline-none focus:border-gyr-primary resize-none"
+                className="w-full p-2 border border-gyr-border rounded-lg text-sm focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] resize-none"
               />
               <button
                 onClick={handleSend}
-                className="mt-3 w-full bg-gyr-primary text-white font-semibold py-2 rounded-lg hover:bg-gyr-primary-hover transition-colors duration-300"
+                className="mt-3 w-full bg-gyr-primary-strong text-white font-semibold py-2 rounded-lg hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
               >
                 Enviar mensaje
               </button>

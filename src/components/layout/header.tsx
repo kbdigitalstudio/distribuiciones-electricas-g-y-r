@@ -22,19 +22,11 @@ export function Header() {
     <header id="masthead" className="site-header bg-white border-b border-gyr-border sticky top-0 z-40 shadow-xs">
       <div className="container header-container px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="site-branding flex items-center gap-3 md:flex-shrink-0">
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="mobile-menu-trigger md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
-            aria-label="Abrir menú"
-          >
-            <img src="/images/barra-de-menus.png" alt="Menú" className="w-6 h-auto" />
-          </button>
           <Logo />
         </div>
 
-        <nav className="hidden md:flex">
-          <Navigation />
-        </nav>
+        {/* `Navigation` ya renderiza su propio <nav>: evita dos landmarks sin nombre. */}
+        <Navigation />
 
         <div className="header-actions flex items-center gap-4 md:gap-6">
           <button

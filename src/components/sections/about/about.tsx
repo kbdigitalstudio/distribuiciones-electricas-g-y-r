@@ -20,7 +20,7 @@ export function AboutSection() {
 
         <div className="mission-vision-grid grid md:grid-cols-2 gap-6">
           <div className="mission-card bg-white border border-gyr-border-light rounded-4xl p-8 shadow-sm">
-            <h3 className="text-2xl font-bold text-gyr-primary mb-4">Misión</h3>
+            <h3 className="text-2xl font-bold text-gyr-primary-strong mb-4">Misión</h3>
             <p className="text-gyr-text leading-relaxed">
               Somos una empresa especializada en la comercialización de materiales eléctricos de baja,
               media y alta tensión a nivel nacional, comprometida con la satisfacción permanente de los
@@ -30,7 +30,7 @@ export function AboutSection() {
             </p>
           </div>
           <div className="vision-card bg-white border border-gyr-border-light rounded-4xl p-8 shadow-sm">
-            <h3 className="text-2xl font-bold text-gyr-primary mb-4">Visión</h3>
+            <h3 className="text-2xl font-bold text-gyr-primary-strong mb-4">Visión</h3>
             <p className="text-gyr-text leading-relaxed">
               Para este nuevo año 2026 mantendrá la tendencia de crecimiento empresarial a nivel
               nacional, buscando la consolidación dentro de los principales proveedores de materiales

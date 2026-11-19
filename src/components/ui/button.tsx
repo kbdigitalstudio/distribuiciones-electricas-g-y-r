@@ -9,11 +9,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const BUTTON_VARIANTS = {
   primary:
-    "bg-gyr-primary hover:bg-gyr-primary-hover text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 shadow-btn-primary hover:shadow-btn-primary-hover",
+    "bg-gyr-primary-strong hover:bg-gyr-primary-strong-hover text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 shadow-btn-primary hover:shadow-btn-primary-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]",
   outline:
-    "border-2 border-gyr-border-light text-gyr-heading hover:bg-gyr-border-light hover:text-gyr-primary font-semibold px-6 py-3 rounded-full transition-all duration-300",
+    "border-2 border-gyr-border-light text-gyr-heading hover:bg-gyr-border-light hover:text-gyr-primary-strong font-semibold px-6 py-3 rounded-full transition-all duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]",
   ghost:
-    "text-gyr-text hover:text-gyr-primary font-semibold px-6 py-3 rounded-full transition-all duration-300",
+    "text-gyr-text hover:text-gyr-primary-strong font-semibold px-6 py-3 rounded-full transition-all duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]",
 };
 
 const BUTTON_SIZES = {

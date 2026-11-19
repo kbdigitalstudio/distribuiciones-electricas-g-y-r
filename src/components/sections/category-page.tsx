@@ -76,7 +76,7 @@ export function CategoryPage({ categoryName, heroImage, products }: CategoryPage
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/[.9] to-transparent p-6 pt-24 text-left flex flex-col justify-end">
-                  <span className="text-xs font-semibold text-gyr-primary tracking-wide uppercase mb-1">
+                  <span className="text-xs font-semibold text-gyr-primary-strong tracking-wide uppercase mb-1">
                     {categoryName}
                   </span>
                   <Link
@@ -89,7 +89,7 @@ export function CategoryPage({ categoryName, heroImage, products }: CategoryPage
                   </Link>
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className="bg-white text-gyr-primary font-semibold px-4 py-2 rounded-full hover:bg-gyr-primary hover:text-white transition-colors duration-300 w-fit self-start"
+                    className="bg-white text-gyr-primary-strong font-semibold px-4 py-2 rounded-full hover:bg-gyr-primary-strong hover:text-white transition-colors duration-300 w-fit self-start"
                   >
                     {added
                       ? "✓ Agregado"

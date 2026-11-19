@@ -6,6 +6,9 @@
   --color-gyr-primary-hover: #128c7e;
   /* Texto/CTA AA: #25d366 solo se usa como acento visual (1.98:1 sobre blanco). */
   --color-gyr-primary-strong: #0f766e;
+  /* Hover sólido del CTA: 7.73:1 con texto blanco (un /90 bajaría a 4.48:1). */
+  --color-gyr-primary-strong-hover: #0b5d57;
+  --color-gyr-on-primary: #ffffff;
   --color-gyr-focus: #0f766e;
   --color-gyr-danger: #b91c1c;
   --color-gyr-danger-bg: #fef2f2;

@@ -9,6 +9,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     const session = await getSession();
 
     if (session) {
+      // Logout cambia estado: exige el token CSRF (cookie no httpOnly + header).
+      const csrfHeader = request.headers.get("x-csrf-token");
+      if (!csrfHeader || csrfHeader !== session.csrf) {
+        return NextResponse.json(
+          { success: false, error: "Token CSRF inválido" },
+          { status: 403 },
+        );
+      }
+
       await db.operationLog.create({
         data: {
           userId: session.userId,
@@ -31,7 +40,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     await clearSessionCookies();
     return NextResponse.json(
       { success: true, message: "Sesión cerrada" },
-      { status: 200 }
+      { status: 200 },
     );
   }
 }

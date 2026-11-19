@@ -32,11 +32,11 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             placeholder="Buscar productos..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 px-4 py-3 border-2 border-gyr-border rounded-xl text-base focus:outline-none focus:border-gyr-primary bg-gyr-surface-light transition-all duration-300"
+            className="flex-1 px-4 py-3 border-2 border-gyr-border rounded-xl text-base focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] bg-gyr-surface-light transition-all duration-300"
           />
           <button
             type="submit"
-            className="bg-gyr-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-gyr-primary-hover transition-colors duration-300"
+            className="bg-gyr-primary-strong text-white px-6 py-3 rounded-xl font-semibold hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
           >
             Buscar
           </button>

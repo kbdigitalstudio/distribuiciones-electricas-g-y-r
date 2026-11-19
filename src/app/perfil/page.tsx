@@ -133,7 +133,7 @@ export default function PerfilPage() {
               onClick={() => {
                 window.location.href = "/";
               }}
-              className="bg-gyr-primary text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-hover transition-colors duration-300"
+              className="bg-gyr-primary-strong text-white font-semibold px-6 py-3 rounded-full hover:bg-gyr-primary-strong-hover transition-colors duration-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               Ir al Inicio
             </button>
@@ -151,7 +151,7 @@ export default function PerfilPage() {
       <main className="flex-1">
         <div className="profile-container max-w-4xl mx-auto py-12 px-4">
           <div className="profile-header text-center mb-10">
-            <h1 className="text-3xl font-bold text-gyr-primary mb-2">Mi Perfil</h1>
+            <h1 className="text-3xl font-bold text-gyr-primary-strong mb-2">Mi Perfil</h1>
             <p className="text-gyr-text">Completa tu información para poder realizar compras</p>
           </div>
 
@@ -181,7 +181,7 @@ export default function PerfilPage() {
                     value={formData.nombre}
                     onChange={handleChange("nombre")}
                     required
-                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                   />
                 </div>
                 <div className="form-group">
@@ -211,7 +211,7 @@ export default function PerfilPage() {
                     value={formData.telefono}
                     onChange={handleChange("telefono")}
                     required
-                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                   />
                 </div>
                 <div className="form-group">
@@ -225,7 +225,7 @@ export default function PerfilPage() {
                     value={formData.ciudad}
                     onChange={handleChange("ciudad")}
                     required
-                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                   />
                 </div>
               </div>
@@ -241,7 +241,7 @@ export default function PerfilPage() {
                   value={formData.direccion}
                   onChange={handleChange("direccion")}
                   required
-                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export default function PerfilPage() {
                   id="departamento"
                   value={formData.departamento}
                   onChange={handleChange("departamento")}
-                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                 >
                   <option value="">Selecciona un departamento</option>
                   {DEPARTAMENTOS.map((d) => (

@@ -40,7 +40,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       </div>
       <div className="lg:w-1/2 p-8 flex flex-col">
         <div className="flex-1">
-          <span className="text-xs font-semibold text-gyr-primary tracking-wide uppercase mb-2 block">
+          <span className="text-xs font-semibold text-gyr-primary-strong tracking-wide uppercase mb-2 block">
             {product.category}
           </span>
           <h1 className="text-3xl font-bold text-gyr-heading mb-4">

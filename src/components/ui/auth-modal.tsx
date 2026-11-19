@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, X } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,8 @@ interface FieldConfig {
   type: string;
   autoComplete: string;
 }
+
+const REQUEST_TIMEOUT_MS = 15000;
 
 const LOGIN_FIELDS: FieldConfig[] = [
   {
@@ -101,6 +104,9 @@ const REGISTER_FIELDS: FieldConfig[] = [
 const INPUT_CLASS =
   "w-full px-3 py-2.5 min-h-[44px] border border-gyr-surface-editable rounded-lg bg-gyr-surface-alt text-gyr-heading placeholder:text-gyr-text/70 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const { showToast } = useToast();
   const [mode, setMode] = useState<AuthMode>("login");
@@ -117,6 +123,8 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const focusInvalidRef = useRef(false);
 
   const fields = mode === "login" ? LOGIN_FIELDS : REGISTER_FIELDS;
 
@@ -154,6 +162,24 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     };
   }, [isOpen]);
 
+  // Si el modal se desmonta con una petición en vuelo, la abortamos.
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+      abortRef.current = null;
+    };
+  }, []);
+
+  // Tras un envío inválido, el foco va al primer campo con error.
+  useEffect(() => {
+    if (!focusInvalidRef.current) return;
+    focusInvalidRef.current = false;
+    const firstInvalid = dialogRef.current?.querySelector<HTMLInputElement>(
+      'input[aria-invalid="true"]',
+    );
+    firstInvalid?.focus();
+  }, [fieldErrors]);
+
   const handleChange = (key: AuthField, value: string) => {
     setValues((previous) => ({ ...previous, [key]: value }));
     setFieldErrors((previous) => {
@@ -165,9 +191,22 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   };
 
   const switchMode = (nextMode: AuthMode) => {
+    if (submitting) return;
     setMode(nextMode);
     setFieldErrors({});
     setGeneralError("");
+  };
+
+  /** Cierra el modal dejando el formulario limpio para la próxima apertura. */
+  const handleClose = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setMode("login");
+    setValues({ email: "", password: "" });
+    setFieldErrors({});
+    setGeneralError("");
+    setSubmitting(false);
+    onClose();
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -176,6 +215,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
     const errors = validateAuthForm(mode, values);
     if (Object.keys(errors).length > 0) {
+      focusInvalidRef.current = true;
       setFieldErrors(errors);
       setGeneralError("");
       return;
@@ -185,6 +225,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     setGeneralError("");
     setSubmitting(true);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+    let timedOut = false;
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, REQUEST_TIMEOUT_MS);
+
     try {
       const response = await fetch(
         mode === "login" ? "/api/auth/login" : "/api/auth/register",
@@ -193,6 +241,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           headers: { "Content-Type": "application/json" },
           credentials: "same-origin",
           body: JSON.stringify(buildAuthPayload(mode, values)),
+          signal: controller.signal,
         },
       );
 
@@ -205,10 +254,17 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
       showToast(mode === "login" ? "Sesión iniciada" : "Cuenta creada");
       onSuccess?.();
-      onClose();
+      handleClose();
     } catch {
-      setGeneralError(authErrorMessage(500, null));
+      // Una cancelación por cierre no es un error; un timeout sí se informa.
+      if (timedOut || !controller.signal.aborted) {
+        setGeneralError(authErrorMessage(500, null));
+      }
     } finally {
+      window.clearTimeout(timeoutId);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+      }
       setSubmitting(false);
     }
   };
@@ -216,14 +272,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
       event.stopPropagation();
-      onClose();
+      handleClose();
       return;
     }
 
     if (event.key !== "Tab") return;
 
     const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      FOCUSABLE_SELECTOR,
     );
     if (!focusable || focusable.length === 0) return;
 
@@ -241,11 +297,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) handleClose();
       }}
     >
       <div
@@ -254,12 +310,12 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         aria-modal="true"
         aria-labelledby="auth-title"
         onKeyDown={handleKeyDown}
-        className="flex max-h-[90vh] w-full max-w-[380px] flex-col overflow-hidden rounded-3xl border border-gyr-border-light bg-white shadow-auth"
+        className="flex max-h-[90vh] w-full max-w-[380px] flex-col overflow-hidden rounded-2xl border border-gyr-border-light bg-white shadow-auth"
       >
         <div className="relative shrink-0 px-6 pt-6 pb-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Cerrar"
             className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-gyr-text transition-colors hover:bg-gyr-surface-alt hover:text-gyr-heading focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
           >
@@ -273,9 +329,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           </h2>
         </div>
 
-        <div className="max-h-[70vh] overflow-y-auto px-6 pb-6">
-          <form onSubmit={handleSubmit} aria-busy={submitting} noValidate>
-            <div className="space-y-4 pt-2">
+        <form
+          onSubmit={handleSubmit}
+          aria-busy={submitting}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="max-h-[min(70vh,560px)] overflow-y-auto overscroll-contain px-6">
+            <div className="space-y-4 pt-2 pb-2">
               {fields.map((field, index) => {
                 const error = fieldErrors[field.key];
                 return (
@@ -292,6 +353,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                       name={field.key}
                       type={field.type}
                       value={values[field.key] ?? ""}
+                      required
                       autoComplete={field.autoComplete}
                       onChange={(event) =>
                         handleChange(field.key, event.target.value)
@@ -301,7 +363,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                       className={INPUT_CLASS}
                     />
                     {error ? (
-                      <p id={`${field.id}-error`} className="text-sm text-gyr-danger">
+                      <p
+                        id={`${field.id}-error`}
+                        role="alert"
+                        className="text-sm text-gyr-danger"
+                      >
                         {error}
                       </p>
                     ) : null}
@@ -309,11 +375,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 );
               })}
             </div>
+          </div>
 
+          <div className="shrink-0 border-t border-gyr-border-light px-6 py-4">
             {generalError ? (
               <div
                 role="alert"
-                className="mt-4 rounded-lg border border-red-200 bg-gyr-danger-bg p-3 text-sm text-gyr-danger"
+                className="mb-4 rounded-lg border border-red-200 bg-gyr-danger-bg p-3 text-sm text-gyr-danger"
               >
                 {generalError}
               </div>
@@ -323,7 +391,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               type="submit"
               disabled={submitting}
               aria-busy={submitting}
-              className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-gyr-primary-strong px-4 font-semibold text-white shadow-btn-primary transition-colors duration-200 hover:bg-gyr-primary-strong/90 disabled:opacity-70 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-gyr-primary-strong px-4 font-semibold text-[var(--color-gyr-on-primary)] shadow-btn-primary transition-colors duration-200 hover:bg-gyr-primary-strong-hover disabled:opacity-70 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             >
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -342,14 +410,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 onClick={() =>
                   switchMode(mode === "login" ? "register" : "login")
                 }
-                className="inline-flex min-h-[44px] items-center px-1 font-semibold text-gyr-primary-strong hover:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
+                disabled={submitting}
+                className="inline-flex min-h-[44px] items-center px-1 font-semibold text-gyr-primary-strong hover:underline disabled:opacity-60 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
               >
                 {mode === "login" ? "Regístrate" : "Inicia sesión"}
               </button>
             </p>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

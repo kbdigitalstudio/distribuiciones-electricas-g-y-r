@@ -13,7 +13,7 @@ const NAV_ITEMS = [
 
 export function Navigation() {
   return (
-    <nav id="site-navigation" className="main-navigation hidden md:flex gap-8 items-center">
+    <nav id="site-navigation" className="main-navigation hidden lg:flex gap-8 items-center">
       <ul className="flex gap-8 text-sm font-semibold uppercase text-gyr-heading">
         {NAV_ITEMS.map((item) => (
           <li key={item.name}>

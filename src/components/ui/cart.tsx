@@ -20,10 +20,10 @@ export function CartDropdown({ isOpen, onToggle }: CartProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative p-2 text-gyr-heading hover:text-gyr-primary transition-colors duration-300">
+      <div className="relative p-2 text-gyr-heading hover:text-gyr-primary-strong transition-colors duration-300">
         <CartIcon className="w-5 h-5" />
         {itemCount > 0 && (
-          <span className="absolute top-1 right-1 bg-gyr-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm animate-bounce">
+          <span className="absolute top-1 right-1 bg-gyr-primary-strong text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm animate-bounce">
             {itemCount}
           </span>
         )}
@@ -56,7 +56,7 @@ export function CartDropdown({ isOpen, onToggle }: CartProps) {
               <span>Total</span>
               <span>{itemCount} productos</span>
             </div>
-            <button className="w-full bg-gyr-primary text-white font-semibold py-3 rounded-xl hover:bg-gyr-primary-hover transition-colors duration-300 shadow-btn-primary hover:shadow-btn-primary-hover">
+            <button className="w-full bg-gyr-primary-strong text-white font-semibold py-3 rounded-xl hover:bg-gyr-primary-strong-hover transition-colors duration-300 shadow-btn-primary hover:shadow-btn-primary-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]">
               Finalizar Compra
             </button>
           </div>

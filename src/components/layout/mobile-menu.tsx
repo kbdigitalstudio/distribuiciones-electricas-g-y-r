@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { X, Menu as MenuIcon } from "lucide-react";
 
 import { CategoryAccordion } from "./categories-menu";
@@ -16,11 +17,64 @@ const MENU_ITEMS = [
   { name: "Catálogo", href: "/catalogo" },
 ];
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+const TRIGGER_ID = "mobile-menu-trigger";
+
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // El drawer declara `aria-modal`: atrapa el foco, cierra con Escape y
+  // devuelve el foco al disparador.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        document.getElementById(TRIGGER_ID)?.focus();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        FOCUSABLE_SELECTOR,
+      );
+      if (!focusable || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
+
+  const closeAndRestoreFocus = () => {
+    onClose();
+    document.getElementById(TRIGGER_ID)?.focus();
+  };
 
   return (
     <div
+      id="mobile-navigation"
+      ref={dialogRef}
       className="fixed inset-0 z-40 bg-white flex flex-col"
       role="dialog"
       aria-modal="true"
@@ -28,7 +82,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     >
       <div className="px-6 py-4 flex items-center justify-between border-b border-gyr-border-light">
         <button
-          onClick={onClose}
+          ref={closeButtonRef}
+          onClick={closeAndRestoreFocus}
           className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gyr-text transition-colors hover:text-gyr-heading hover:bg-gyr-surface-alt focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
           aria-label="Cerrar menú"
         >
@@ -55,29 +110,25 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </h3>
           <CategoryAccordion />
         </div>
-
-        <div className="mt-8 pt-6 border-t border-gyr-border-light flex gap-4">
-          {["Buscar", "Carrito", "Mi Cuenta"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="border-b-2 border-gyr-primary px-4 py-3 text-sm font-bold text-gyr-primary-strong transition-colors duration-200 hover:bg-gyr-border-light focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
       </nav>
     </div>
   );
 }
 
-export function MobileMenuTrigger({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (open: boolean) => void }) {
+export function MobileMenuTrigger({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) {
   return (
     <button
+      id={TRIGGER_ID}
       onClick={() => setIsOpen(true)}
       aria-expanded={isOpen}
-      className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 text-gyr-heading transition-colors hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
+      aria-controls="mobile-navigation"
+      className="lg:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 text-gyr-heading transition-colors hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
       aria-label="Abrir menú móvil"
     >
       <MenuIcon className="w-6 h-6" aria-hidden="true" />

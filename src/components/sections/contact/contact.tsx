@@ -39,7 +39,7 @@ export function ContactSection() {
                   key={i}
                   className="info-card bg-white border border-gyr-border-light rounded-2xl p-6 shadow-sm flex items-start gap-4"
                 >
-                  <div className="info-icon flex-shrink-0 text-gyr-primary">
+                  <div className="info-icon flex-shrink-0 text-gyr-primary-strong">
                     {card.icon}
                   </div>
                   <div>
@@ -66,7 +66,7 @@ export function ContactSection() {
                   <input
                     type="text"
                     placeholder="Tu nombre"
-                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                   />
                 </div>
                 <div className="form-group">
@@ -76,7 +76,7 @@ export function ContactSection() {
                   <input
                     type="email"
                     placeholder="tu@email.com"
-                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                    className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                   />
                 </div>
               </div>
@@ -87,7 +87,7 @@ export function ContactSection() {
                 <input
                   type="text"
                   placeholder="¿En qué podemos ayudarte?"
-                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                 />
               </div>
               <div className="form-group">
@@ -97,12 +97,12 @@ export function ContactSection() {
                 <textarea
                   rows={5}
                   placeholder="Escribe tu mensaje aquí..."
-                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:outline-none focus:border-gyr-primary transition-colors duration-300"
+                  className="w-full px-4 py-3 border-1.5 border-gyr-border rounded-lg bg-gyr-surface-light focus:border-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] transition-colors duration-300"
                 />
               </div>
               <button
                 type="submit"
-                className="btn btn-primary btn-block w-full bg-gyr-primary text-white font-semibold py-3 rounded-xl hover:bg-gyr-primary-hover transition-colors duration-300 shadow-btn-primary hover:shadow-btn-primary-hover"
+                className="btn btn-primary btn-block w-full bg-gyr-primary-strong text-white font-semibold py-3 rounded-xl hover:bg-gyr-primary-strong-hover transition-colors duration-300 shadow-btn-primary hover:shadow-btn-primary-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
               >
                 Enviar Mensaje
               </button>

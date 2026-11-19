@@ -182,6 +182,10 @@ function ProductThumbnail({ product }: { product: MenuProduct }) {
     <img
       src={product.imageUrl}
       alt=""
+      width={40}
+      height={40}
+      loading="lazy"
+      decoding="async"
       className="h-10 w-10 shrink-0 rounded-lg bg-gyr-surface-alt object-contain"
     />
   );
@@ -194,7 +198,7 @@ function ProductLinks({ products }: { products: MenuProduct[] }) {
         <li key={product.id}>
           <Link
             href={`/producto/${product.slug}`}
-            className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gyr-text transition-colors duration-200 hover:bg-gyr-surface-alt hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
+            className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gyr-text transition-colors duration-200 hover:bg-gyr-surface-alt hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
           >
             <ProductThumbnail product={product} />
             <span className="font-medium">{product.name}</span>
@@ -292,7 +296,6 @@ export function CategoriesMenu() {
         onClick={() => setOpen((current) => !current)}
         aria-expanded={open}
         aria-controls="categories-menu"
-        aria-haspopup="true"
         className="inline-flex min-h-[44px] items-center gap-1 py-2 text-sm font-semibold uppercase text-gyr-text transition-colors duration-300 hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
       >
         <LayoutGrid className="h-4 w-4" aria-hidden="true" />
@@ -307,7 +310,7 @@ export function CategoriesMenu() {
           className="absolute inset-x-0 top-full z-50 rounded-b-2xl border-b border-gyr-border bg-white text-gyr-text font-normal normal-case shadow-md"
         >
           <div className="container px-4 py-6">
-            <div className="grid grid-cols-[280px_1fr] gap-6">
+            <div className="grid grid-cols-[280px_600px] gap-6">
               <div className="max-h-[420px] overflow-y-auto pr-2">
                 {status === "loading" || status === "idle" ? (
                   <SkeletonList />
@@ -340,13 +343,23 @@ export function CategoriesMenu() {
                             }}
                             aria-expanded={isActive}
                             aria-controls="categories-flyout"
-                            className={`flex w-full items-center justify-between gap-3 rounded-lg py-2.5 pl-3 pr-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] ${
+                            className={`flex min-h-[44px] w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)] ${
                               isActive
-                                ? "border-l-2 border-gyr-primary-strong bg-gyr-surface-alt pl-[10px] text-gyr-primary-strong"
-                                : "border-l-2 border-transparent text-gyr-heading hover:bg-gyr-surface-alt hover:text-gyr-primary-strong"
+                                ? "bg-gyr-surface-alt text-gyr-primary-strong"
+                                : "text-gyr-heading hover:bg-gyr-surface-alt hover:text-gyr-primary-strong"
                             }`}
                           >
-                            <span>{category.name}</span>
+                            <span className="flex min-w-0 items-center gap-3">
+                              <span
+                                aria-hidden="true"
+                                className={`h-4 w-4 shrink-0 rounded-md ${
+                                  isActive
+                                    ? "bg-gyr-primary-strong"
+                                    : "bg-gyr-border-light"
+                                }`}
+                              />
+                              <span className="truncate">{category.name}</span>
+                            </span>
                             <span className="flex items-center gap-2">
                               <span
                                 aria-hidden="true"
@@ -372,7 +385,7 @@ export function CategoriesMenu() {
               >
                 {activeCategory ? (
                   <>
-                    <h3 className="text-sm font-semibold uppercase text-gyr-heading">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-gyr-heading">
                       {activeCategory.name}
                     </h3>
                     {activeCategory.products.length > 0 ? (
@@ -400,7 +413,9 @@ export function CategoriesMenu() {
 
           <p className="sr-only" aria-live="polite">
             {status === "ready"
-              ? `Categorías cargadas: ${categories.length} categorías, ${productTotal} productos`
+              ? categories.length === 0
+                ? "Todavía no hay categorías disponibles"
+                : `Categorías cargadas: ${categories.length} categorías, ${productTotal} productos`
               : status === "error"
                 ? LOAD_ERROR_MESSAGE
                 : ""}
