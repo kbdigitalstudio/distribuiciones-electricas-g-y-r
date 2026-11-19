@@ -77,8 +77,11 @@ GET /api/products?categoryId=<uuid>&pageSize=50
 
 ```http
 GET /api/categories?parentId=&pageSize=100   → nivel 1 (14 categorías)
-GET /api/products?pageSize=100                → nivel 2, agrupado por categoryId en el cliente
+GET /api/products?pageSize=100                → nivel 2, agrupado por `product.category.id` en el cliente
 ```
+
+La clave de agrupación es **`product.category.id`** (objeto anidado, verificado contra producción),
+no un `categoryId` plano: `products.map(p => p.category.id)`.
 
 `pageSize` máximo = 100 (`PaginationSchema`). Con 31 productos entra todo en una sola respuesta.
 
@@ -89,12 +92,15 @@ GET /api/products?pageSize=100                → nivel 2, agrupado por category
 
 ### Rutas de destino
 
-Cada categoría debe enlazar a la ruta pública que ya existe en el repo (15 páginas estáticas):
+Cada categoría debe enlazar a la ruta pública que ya existe en el repo (14 páginas estáticas):
 
 `/alta-tension` · `/media-tension` · `/baja-tension` · `/conductores-electricos` · `/tuberia` ·
-`/aislamiento-proteccion` · `/transformadores` · `/puesta-tierra` · `/herrajeria` · `/cajas-tableros` ·
+`/transformadores` · `/puesta-tierra` · `/herrajeria` · `/cajas-tableros` ·
 `/maniobra` · `/medidores-energia` · `/accesorios-red-ecologica` · `/accesorios-red-trenzada` ·
 `/interruptores-tomacorrientes`
+
+> `/aislamiento-proteccion` **NO existe** (404): no está en el catálogo real. Cualquier enlace a esa
+> ruta debe desaparecer o apuntar a `/catalogo`.
 
 Regla de enlace: `href = "/" + slug`. Si la categoría no tiene página propia, enlazar a `/catalogo`.
 

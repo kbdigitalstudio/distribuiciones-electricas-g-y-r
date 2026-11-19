@@ -4,6 +4,11 @@
   /* Colores corporativos G y R */
   --color-gyr-primary: #25d366;
   --color-gyr-primary-hover: #128c7e;
+  /* Texto/CTA AA: #25d366 solo se usa como acento visual (1.98:1 sobre blanco). */
+  --color-gyr-primary-strong: #0f766e;
+  --color-gyr-focus: #0f766e;
+  --color-gyr-danger: #b91c1c;
+  --color-gyr-danger-bg: #fef2f2;
   --color-gyr-text: #626262;
   --color-gyr-heading: #333333;
   --color-gyr-bg: #ffffff;

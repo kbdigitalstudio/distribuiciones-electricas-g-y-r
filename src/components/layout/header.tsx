@@ -16,6 +16,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [sessionRefresh, setSessionRefresh] = useState(0);
 
   return (
     <header id="masthead" className="site-header bg-white border-b border-gyr-border sticky top-0 z-40 shadow-xs">
@@ -23,7 +24,7 @@ export function Header() {
         <div className="site-branding flex items-center gap-3 md:flex-shrink-0">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="mobile-menu-trigger md:hidden p-2"
+            className="mobile-menu-trigger md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             aria-label="Abrir menú"
           >
             <img src="/images/barra-de-menus.png" alt="Menú" className="w-6 h-auto" />
@@ -38,10 +39,10 @@ export function Header() {
         <div className="header-actions flex items-center gap-4 md:gap-6">
           <button
             onClick={() => setSearchOpen(true)}
-            className="p-2 rounded-lg text-gyr-heading hover:text-gyr-primary transition-colors duration-300"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gyr-heading transition-colors duration-300 hover:text-gyr-primary-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             aria-label="Buscar"
           >
-            <SearchIcon className="w-5 h-5" />
+            <SearchIcon className="w-5 h-5" aria-hidden="true" />
           </button>
 
           <CartDropdown
@@ -49,7 +50,10 @@ export function Header() {
             onToggle={() => setCartOpen(!cartOpen)}
           />
 
-          <UserAccess onOpen={() => setAuthModalOpen(true)} />
+          <UserAccess
+            onOpen={() => setAuthModalOpen(true)}
+            refreshToken={sessionRefresh}
+          />
 
           <MobileMenuTrigger
             isOpen={mobileMenuOpen}
@@ -64,7 +68,11 @@ export function Header() {
 
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={() => setSessionRefresh((current) => current + 1)}
+      />
     </header>
   );
 }

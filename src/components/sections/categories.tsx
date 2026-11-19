@@ -62,9 +62,19 @@ export const CATEGORIES_DATA: CategoryItem[] = [
     image: "/images/tuberia.png",
   },
   {
-    name: "Aislamiento y protección",
-    href: "/aislamiento-proteccion",
-    image: "/images/aislamiento-proteccion.png",
+    name: "Alta tensión",
+    href: "/alta-tension",
+    image: "/images/alta-tension/alta-tension.jpg",
+  },
+  {
+    name: "Media tensión",
+    href: "/media-tension",
+    image: "/images/media-tension/transformador-distribucion.png",
+  },
+  {
+    name: "Baja tensión",
+    href: "/baja-tension",
+    image: "/images/baja-tension/tableros_alumbrado-nq.jpg",
   },
   {
     name: "Transformadores",
