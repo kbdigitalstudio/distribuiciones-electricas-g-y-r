@@ -5,7 +5,7 @@ import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 
 const PRODUCTS = [
   { name: "Seccionador de Operación", slug: "seccionador-operacion", category: "Maniobra", image: "/images/media-tension/seccionador-operacion.png" },
-  { name: "Seccionadores de Potencia", slug: "seccionadores-potencia", category: "Maniobra", image: "/images/seccionadores de potencia.png" },
+  { name: "Seccionadores de Potencia", slug: "seccionadores-potencia", category: "Maniobra", image: "/images/maniobra.png" },
 ];
 
 export default function ManiobraPage() {
@@ -15,7 +15,7 @@ export default function ManiobraPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Maniobra"
-          heroImage="/images/Breakers.png"
+          heroImage="/images/maniobra.png"
           products={PRODUCTS}
         />
       </main>

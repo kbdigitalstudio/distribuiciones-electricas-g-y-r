@@ -21,7 +21,7 @@ export default function BajaTensionPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Baja Tensión"
-          heroImage="/images/baja tension.jpg"
+          heroImage="/images/baja-tension/tableros_alumbrado-nq.jpg"
           products={PRODUCTS}
         />
       </main>

@@ -159,7 +159,7 @@ export const PRODUCTS: Product[] = [
     slug: "cable-cobre-desnudo",
     name: "Cable de Cobre Desnudo",
     category: "Conductores Eléctricos",
-    image: "/images/conductores electricos.png",
+    image: "/images/conductores-electricos.png",
   },
   // Transformadores
   {
@@ -173,56 +173,56 @@ export const PRODUCTS: Product[] = [
     slug: "tuberia-emt",
     name: "Tubería EMT",
     category: "Tubería",
-    image: "/images/tubería emt.png",
+    image: "/images/tuberia.png",
   },
   // Maniobra
   {
     slug: "seccionadores-potencia",
     name: "Seccionadores de Potencia",
     category: "Maniobra",
-    image: "/images/seccionadores de potencia.png",
+    image: "/images/maniobra.png",
   },
   // Medidores de Energía
   {
     slug: "medidores-electronicos",
     name: "Medidores Electrónicos",
     category: "Medidores de Energía",
-    image: "/images/medidores de energía.png",
+    image: "/images/medidores-energia.png",
   },
   // Puesta a Tierra
   {
     slug: "varillas-puesta-tierra",
     name: "Varillas de Puesta a Tierra",
     category: "Puesta a Tierra",
-    image: "/images/varillas de puesta a tierra.png",
+    image: "/images/puesta-tierra.png",
   },
   // Herrajería
   {
     slug: "crucetas-metalicas-herrajeria",
     name: "Crucetas Metálicas",
     category: "Herrajería",
-    image: "/images/Herrajería.png",
+    image: "/images/herrajeria.png",
   },
   // Cajas y Tableros
   {
     slug: "tableros-alumbrado-nq-cajas",
     name: "Tableros Alumbrado NQ",
     category: "Cajas y Tableros",
-    image: "/images/Cajas y Tableros.png",
+    image: "/images/cajas-tableros.png",
   },
   // Accesorios Red Ecológica
   {
     slug: "espaciadores",
     name: "Espaciadores",
     category: "Accesorios para Red Ecológica",
-    image: "/images/espaciadores.png",
+    image: "/images/accesorios-red-ecologica.png",
   },
   // Accesorios Red Trenzada
   {
     slug: "conectores-perforacion",
     name: "Conectores de Perforación",
     category: "Accesorios para Red Trenzada",
-    image: "/images/conectores de perforación.png",
+    image: "/images/accesorios-red-trenzada.png",
   },
 ];
 

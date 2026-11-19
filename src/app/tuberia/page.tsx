@@ -5,7 +5,7 @@ import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 
 const PRODUCTS = [
   { name: "Tubería PVC", slug: "tuberia-pvc", category: "Tubería", image: "/images/baja-tension/tuberia pvc.jpg" },
-  { name: "Tubería EMT", slug: "tuberia-emt", category: "Tubería", image: "/images/tubería emt.png" },
+  { name: "Tubería EMT", slug: "tuberia-emt", category: "Tubería", image: "/images/tuberia.png" },
   { name: "Tubos", slug: "tubos", category: "Tubería", image: "/images/baja-tension/tubos.jpg" },
 ];
 
@@ -16,7 +16,7 @@ export default function TuberiaPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Tubería"
-          heroImage="/images/Tubería.png"
+          heroImage="/images/tuberia.png"
           products={PRODUCTS}
         />
       </main>

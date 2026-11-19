@@ -11,7 +11,7 @@
  * Uso: `npx prisma db seed` (configurado en package.json → prisma.seed).
  */
 import { createRequire } from "node:module";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -119,12 +119,18 @@ async function seed() {
   const prisma = new PrismaClient();
 
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const publicDir = join(root, "public");
+  const fileExists = (imageUrl) =>
+    !!imageUrl && existsSync(join(publicDir, imageUrl.replace(/^\//, "")));
+
   const products = parseProducts(
     readFileSync(join(root, "src", "data", "products.ts"), "utf8")
   );
   const plan = buildSeedPlan(products);
 
   const idsByCategory = new Map();
+  let repaired = 0;
+
   for (const category of plan) {
     const row = await prisma.category.upsert({
       where: { slug: category.slug },
@@ -139,12 +145,21 @@ async function seed() {
       },
     });
     idsByCategory.set(category.name, row.id);
+
+    // Reparación de imágenes rotas (no toca nada más: solo si el archivo no existe).
+    if (row.imageUrl && !fileExists(row.imageUrl) && fileExists(category.imageUrl)) {
+      await prisma.category.update({
+        where: { id: row.id },
+        data: { imageUrl: category.imageUrl },
+      });
+      repaired += 1;
+    }
   }
 
   let processed = 0;
   for (const category of plan) {
     for (const product of category.products) {
-      await prisma.product.upsert({
+      const row = await prisma.product.upsert({
         where: { slug: product.slug },
         update: {},
         create: {
@@ -156,6 +171,14 @@ async function seed() {
         },
       });
       processed += 1;
+
+      if (row.imageUrl && !fileExists(row.imageUrl) && fileExists(product.imageUrl)) {
+        await prisma.product.update({
+          where: { id: row.id },
+          data: { imageUrl: product.imageUrl },
+        });
+        repaired += 1;
+      }
     }
   }
 
@@ -165,7 +188,7 @@ async function seed() {
   ]);
 
   console.log(
-    `Seed OK: ${plan.length} categorías, ${processed} productos procesados (BD: ${categoryCount} categorías, ${productCount} productos).`
+    `Seed OK: ${plan.length} categorías, ${processed} productos procesados (BD: ${categoryCount} categorías, ${productCount} productos, ${repaired} imágenes reparadas).`
   );
 
   await prisma.$disconnect();

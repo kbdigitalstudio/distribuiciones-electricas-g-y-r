@@ -4,7 +4,7 @@ import { CategoryPage } from "@/components/sections/category-page";
 import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 
 const PRODUCTS = [
-  { name: "Espaciadores", slug: "espaciadores", category: "Accesorios para Red Ecológica", image: "/images/espaciadores.png" },
+  { name: "Espaciadores", slug: "espaciadores", category: "Accesorios para Red Ecológica", image: "/images/accesorios-red-ecologica.png" },
 ];
 
 export default function AccesoriosRedEcologicaPage() {
@@ -14,7 +14,7 @@ export default function AccesoriosRedEcologicaPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Accesorios para Red Ecológica"
-          heroImage="/images/Accesorios para red ecologica.png"
+          heroImage="/images/accesorios-red-ecologica.png"
           products={PRODUCTS}
         />
       </main>

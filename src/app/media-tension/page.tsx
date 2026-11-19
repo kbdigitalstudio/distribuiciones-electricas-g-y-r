@@ -20,7 +20,7 @@ export default function MediaTensionPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Media Tensión"
-          heroImage="/images/media tension.jpg"
+          heroImage="/images/media-tension/transformador-distribucion.png"
           products={PRODUCTS}
         />
       </main>

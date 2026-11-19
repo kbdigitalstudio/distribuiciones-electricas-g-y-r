@@ -14,7 +14,7 @@ export default function InterruptoresTomacorrientesPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Interruptores y Tomacorrientes"
-          heroImage="/images/Interruptores, tomas y enchufes.png"
+          heroImage="/images/interruptores-tomacorrientes.png"
           products={PRODUCTS}
         />
       </main>

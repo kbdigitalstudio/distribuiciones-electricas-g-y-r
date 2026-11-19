@@ -5,7 +5,7 @@ import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 
 const PRODUCTS = [
   { name: "Contador Electrónico Bifásico", slug: "contador-electronico-bifasico", category: "Medidores de Energía", image: "/images/baja-tension/contador-electronico-bifasico-5-100a-lcd-cl-1-calibrado.jpg" },
-  { name: "Medidores Electrónicos", slug: "medidores-electronicos", category: "Medidores de Energía", image: "/images/medidores de energía.png" },
+  { name: "Medidores Electrónicos", slug: "medidores-electronicos", category: "Medidores de Energía", image: "/images/medidores-energia.png" },
 ];
 
 export default function MedidoresEnergiaPage() {
@@ -15,7 +15,7 @@ export default function MedidoresEnergiaPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Medidores de Energía"
-          heroImage="/images/Medidores de energía.png"
+          heroImage="/images/medidores-energia.png"
           products={PRODUCTS}
         />
       </main>

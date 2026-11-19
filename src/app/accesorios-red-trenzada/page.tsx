@@ -4,7 +4,7 @@ import { CategoryPage } from "@/components/sections/category-page";
 import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 
 const PRODUCTS = [
-  { name: "Conectores de Perforación", slug: "conectores-perforacion", category: "Accesorios para Red Trenzada", image: "/images/conectores de perforación.png" },
+  { name: "Conectores de Perforación", slug: "conectores-perforacion", category: "Accesorios para Red Trenzada", image: "/images/accesorios-red-trenzada.png" },
 ];
 
 export default function AccesoriosRedTrenzadaPage() {
@@ -14,7 +14,7 @@ export default function AccesoriosRedTrenzadaPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Accesorios para Red Trenzada"
-          heroImage="/images/Accesorios para red trenzada.png"
+          heroImage="/images/accesorios-red-trenzada.png"
           products={PRODUCTS}
         />
       </main>

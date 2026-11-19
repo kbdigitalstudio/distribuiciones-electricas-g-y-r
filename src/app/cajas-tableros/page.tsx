@@ -14,7 +14,7 @@ export default function CajasTablerosPage() {
       <main className="flex-1">
         <CategoryPage
           categoryName="Cajas y Tableros"
-          heroImage="/images/cajas y tableros.png"
+          heroImage="/images/cajas-tableros.png"
           products={PRODUCTS}
         />
       </main>
