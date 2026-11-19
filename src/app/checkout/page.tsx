@@ -5,7 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
 import { BANCOS_PSE } from "@/types/user";
-import type { User, CartItem } from "@/types/user";
+import type { User, CartItem, Order as CheckoutOrder } from "@/types/user";
 
 function isAuthenticated(user: User | null): boolean {
   return Boolean(user && user.isAuthenticated === true);
@@ -29,15 +29,27 @@ export default function CheckoutPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    let cancelled = false;
+
+    async function loadStoredData() {
+      const storedUser = localStorage.getItem("user");
+      const storedCart =
+        localStorage.getItem("cart") ?? localStorage.getItem("gyr-cart");
+      const parsedUser = storedUser ? (JSON.parse(storedUser) as User) : null;
+      const parsedCart = storedCart ? (JSON.parse(storedCart) as CartItem[]) : [];
+
+      await Promise.resolve();
+      if (cancelled) return;
+
+      if (parsedUser) setUser(parsedUser);
+      if (parsedCart.length > 0) setCart(parsedCart);
     }
 
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
-    }
+    void loadStoredData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Verificaciones de acceso
@@ -135,15 +147,15 @@ export default function CheckoutPage() {
 
     // Guardar orden en LocalStorage (simulación - requiere backend real)
     const ordersRaw = localStorage.getItem("orders");
-    let orders: any[] = [];
+    let orders: CheckoutOrder[] = [];
     if (ordersRaw) {
       try {
-        orders = JSON.parse(ordersRaw);
+        orders = JSON.parse(ordersRaw) as CheckoutOrder[];
       } catch {
         orders = [];
       }
     }
-    orders.push(order);
+    orders = [...orders, order];
     localStorage.setItem("orders", JSON.stringify(orders));
 
     // Simulación de redirección a PSE - requiere pasarela real
@@ -152,6 +164,7 @@ export default function CheckoutPage() {
     );
 
     localStorage.removeItem("cart");
+    localStorage.removeItem("gyr-cart");
     window.location.href = "/?order=" + order.orderId;
   };
 
@@ -234,7 +247,7 @@ export default function CheckoutPage() {
                 <h2 className="section-title text-xl font-bold text-gyr-heading mb-6 flex items-center gap-2">
                   <span className="text-2xl">👤</span> Información de Envío
                 </h2>
-                <div className="customer-info bg-gradient-to-r from-667eea to-764ba2 text-white p-6 rounded-lg mb-6">
+                <div className="customer-info bg-gyr-primary-strong text-white p-6 rounded-lg mb-6">
                   <h3 className="font-bold mb-4">Datos del Cliente</h3>
                   <div className="space-y-2 text-sm">
                     <div className="info-row flex justify-between">
@@ -357,7 +370,7 @@ export default function CheckoutPage() {
 
                   <button
                     onClick={handleProceedPayment}
-                    className="btn-pay w-full py-4 bg-gradient-to-r from-green-600 to-emerald-400 text-white font-bold text-lg rounded-lg hover:shadow-[0_8px_20px_rgba(34,197,94,0.3)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-pay w-full py-4 bg-gyr-primary-strong hover:bg-gyr-primary-strong-hover text-white font-bold text-lg rounded-lg hover:shadow-[0_8px_20px_rgba(15,118,110,0.3)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
                     disabled={selectedBank === "Selecciona tu banco"}
                   >
                     <span>🔒</span>

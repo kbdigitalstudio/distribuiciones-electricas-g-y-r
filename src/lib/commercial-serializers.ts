@@ -100,24 +100,23 @@ export function serializeCustomerSummary(
   };
 }
 
-interface QuoteItemLike
-  extends Pick<
-    QuoteItem,
-    | "id"
-    | "productId"
-    | "priceId"
-    | "productName"
-    | "productSku"
-    | "productSlug"
-    | "currency"
-    | "pricingSource"
-    | "quantity"
-    | "unitPriceCents"
-    | "subtotalCents"
-    | "deletedAt"
-    | "createdAt"
-    | "updatedAt"
-  > {}
+type QuoteItemLike = Pick<
+  QuoteItem,
+  | "id"
+  | "productId"
+  | "priceId"
+  | "productName"
+  | "productSku"
+  | "productSlug"
+  | "currency"
+  | "pricingSource"
+  | "quantity"
+  | "unitPriceCents"
+  | "subtotalCents"
+  | "deletedAt"
+  | "createdAt"
+  | "updatedAt"
+>;
 
 export function serializeQuoteItem(item: QuoteItemLike) {
   return {
@@ -183,21 +182,20 @@ export function serializeQuote(quote: QuoteLike) {
   };
 }
 
-interface OrderItemLike
-  extends Pick<
-    OrderItem,
-    | "id"
-    | "productId"
-    | "priceId"
-    | "productName"
-    | "productSku"
-    | "productSlug"
-    | "currency"
-    | "pricingSource"
-    | "quantity"
-    | "unitPriceCents"
-    | "subtotalCents"
-  > {}
+type OrderItemLike = Pick<
+  OrderItem,
+  | "id"
+  | "productId"
+  | "priceId"
+  | "productName"
+  | "productSku"
+  | "productSlug"
+  | "currency"
+  | "pricingSource"
+  | "quantity"
+  | "unitPriceCents"
+  | "subtotalCents"
+>;
 
 export function serializeOrderItem(item: OrderItemLike) {
   return {

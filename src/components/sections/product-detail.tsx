@@ -72,7 +72,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             className={`w-full py-4 rounded-lg font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               isInCart(product.slug)
                 ? "bg-gyr-border-light text-gyr-text cursor-not-allowed"
-                : "bg-gradient-to-r from-gyr-primary to-gyr-primary-hover text-white shadow-btn-primary hover:shadow-btn-primary-hover"
+                : "bg-gyr-primary-strong text-white shadow-btn-primary hover:bg-gyr-primary-strong-hover hover:shadow-btn-primary-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
             }`}
           >
             {added ? (

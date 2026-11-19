@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { WhatsAppFloating } from "@/components/ui/whatsapp-floating";
@@ -37,29 +37,12 @@ export default function PerfilPage() {
   });
   const [message, setMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      const parsed: User = JSON.parse(stored);
-      setUser(parsed);
-      setFormData({
-        nombre: parsed.nombre || "",
-        email: parsed.email || "",
-        telefono: parsed.telefono || "",
-        ciudad: parsed.ciudad || "",
-        direccion: parsed.direccion || "",
-        departamento: parsed.departamento || "",
-      });
-    }
-    updateStatus();
-  }, []);
-
-  const updateStatus = () => {
+  const updateStatus = useCallback((data: typeof formData) => {
     const complete =
-      Boolean(formData.nombre) &&
-      Boolean(formData.telefono) &&
-      Boolean(formData.ciudad) &&
-      Boolean(formData.direccion);
+      Boolean(data.nombre) &&
+      Boolean(data.telefono) &&
+      Boolean(data.ciudad) &&
+      Boolean(data.direccion);
     setStatus({
       text: complete ? "Perfil Completo" : "Perfil Incompleto",
       subtitle: complete
@@ -68,11 +51,44 @@ export default function PerfilPage() {
       icon: complete ? "✅" : "⚠️",
       complete,
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStoredUser() {
+      const stored = localStorage.getItem("user");
+      const parsed = stored ? (JSON.parse(stored) as User) : null;
+      const nextFormData = parsed
+        ? {
+            nombre: parsed.nombre || "",
+            email: parsed.email || "",
+            telefono: parsed.telefono || "",
+            ciudad: parsed.ciudad || "",
+            direccion: parsed.direccion || "",
+            departamento: parsed.departamento || "",
+          }
+        : null;
+
+      await Promise.resolve();
+      if (cancelled || !parsed || !nextFormData) return;
+
+      setUser(parsed);
+      setFormData(nextFormData);
+      updateStatus(nextFormData);
+    }
+
+    void loadStoredUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [updateStatus]);
 
   const handleChange = (key: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [key]: e.target.value }));
-    updateStatus();
+    const next = { ...formData, [key]: e.target.value };
+    setFormData(next);
+    updateStatus(next);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -102,7 +118,8 @@ export default function PerfilPage() {
     setUser(currentUser);
     setMessage("¡Perfil actualizado exitosamente!");
 
-    const cartRaw = localStorage.getItem("cart");
+    const cartRaw =
+      localStorage.getItem("cart") ?? localStorage.getItem("gyr-cart");
     if (cartRaw) {
       try {
         const cart = JSON.parse(cartRaw);
@@ -158,8 +175,8 @@ export default function PerfilPage() {
           <div className="profile-card bg-white border border-gyr-border-light rounded-4xl p-8 shadow-sm">
             <div className={`profile-status p-4 rounded-lg mb-6 flex items-center justify-between text-white ${
               status.complete
-                ? "bg-gradient-to-r from-4facfe to-00f2fe"
-                : "bg-gradient-to-r from-f093fb to-f5576c"
+                ? "bg-gyr-primary-strong"
+                : "bg-gyr-danger"
             }`}>
               <div>
                 <div className="status-text font-semibold">{status.text}</div>
@@ -266,7 +283,7 @@ export default function PerfilPage() {
 
               <button
                 type="submit"
-                className="w-full btn-save bg-gradient-to-r from-gyr-primary to-gyr-primary-hover text-white font-bold py-4 rounded-lg hover:shadow-auth-btn transition-all duration-200 flex items-center justify-center gap-2"
+                className="w-full btn-save bg-gyr-primary-strong hover:bg-gyr-primary-strong-hover text-white font-bold py-4 rounded-lg hover:shadow-auth-btn transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gyr-focus)]"
               >
                 <span>💾</span>
                 <span>Guardar Información</span>

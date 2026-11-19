@@ -13,6 +13,7 @@ interface CartItem {
 }
 
 const STORAGE_KEY = "gyr-cart";
+const LEGACY_STORAGE_KEY = "cart";
 
 interface CartContextType {
   cart: CartItem[];
@@ -31,19 +32,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed: CartItem[] = JSON.parse(stored);
-        setCart(parsed);
+    let cancelled = false;
+
+    async function loadStoredCart() {
+      try {
+        const stored =
+          localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+        const parsed = stored ? (JSON.parse(stored) as CartItem[]) : [];
+
+        await Promise.resolve();
+        if (cancelled) return;
+
+        if (parsed.length > 0) setCart(parsed);
+      } catch {
+        // ignorar errores de parseo
       }
-    } catch {
-      // ignorar errores de parseo
     }
+
+    void loadStoredCart();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
   const itemCount = cart.reduce((acc, item) => acc + item.quantity, 0);

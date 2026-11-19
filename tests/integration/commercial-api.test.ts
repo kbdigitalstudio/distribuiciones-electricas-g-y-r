@@ -645,7 +645,7 @@ describeIntegration("integración real con PostgreSQL (comercial)", () => {
       let response = await listCustomers(
         new Request("http://localhost/api/customers?pageSize=100")
       );
-      let body = await responseJson(response);
+      const body = await responseJson(response);
       expect(response.status).toBe(200);
       let ids = (body.customers ?? []).map((item) => item.id);
       expect(ids).toContain(customerAId);

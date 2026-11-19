@@ -351,11 +351,7 @@ export function CommercialPortal() {
 
   useEffect(() => {
     if (session.status !== "authenticated") return;
-
-    if (tab === "customers" && !canSeeCustomers) {
-      setTab("quotes");
-      return;
-    }
+    if (tab === "customers" && !canSeeCustomers) return;
 
     let cancelled = false;
 
@@ -427,13 +423,15 @@ export function CommercialPortal() {
   }, [searchInput]);
 
   const changeTab = useCallback((next: Tab) => {
+    if (next === "customers" && !canSeeCustomers) return;
+
     setTab(next);
     setPage(1);
     setStatusFilter("");
     setExpandedId(null);
     setError(null);
     setMessage(null);
-  }, []);
+  }, [canSeeCustomers]);
 
   const runAction = useCallback(
     async (id: string, action: () => Promise<void>, successMessage: string) => {

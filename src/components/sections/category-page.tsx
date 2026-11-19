@@ -11,6 +11,27 @@ interface CategoryPageProps {
   products: Product[];
 }
 
+function HeroSmall({ title, imageUrl }: { title: string; imageUrl?: string }) {
+  return (
+    <section className="hero-small relative py-16 md:py-24 text-center overflow-hidden mb-12">
+      <div className="absolute inset-0 bg-black/[.6] z-0" />
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt="Hero background"
+          className="absolute inset-0 w-full h-full object-cover"
+          decoding="async"
+        />
+      ) : null}
+      <div className="container relative z-10 px-4">
+        <h1 className="text-3xl md:text-4xl font-bold text-white">
+          {title}
+        </h1>
+      </div>
+    </section>
+  );
+}
+
 export function CategoryPage({ categoryName, heroImage, products }: CategoryPageProps) {
   const { addItem, isInCart } = useCartWithToast();
   const [addedSlug, setAddedSlug] = useState<string | null>(null);
@@ -21,27 +42,6 @@ export function CategoryPage({ categoryName, heroImage, products }: CategoryPage
     setAddedSlug(product.slug);
     setTimeout(() => setAddedSlug(null), 2000);
   };
-
-  function HeroSmall({ title, imageUrl }: { title: string; imageUrl?: string }) {
-    return (
-      <section className="hero-small relative py-16 md:py-24 text-center overflow-hidden mb-12">
-        <div className="absolute inset-0 bg-black/[.6] z-0" />
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt="Hero background"
-            className="absolute inset-0 w-full h-full object-cover"
-            decoding="async"
-          />
-        ) : null}
-        <div className="container relative z-10 px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {title}
-          </h1>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-16">
