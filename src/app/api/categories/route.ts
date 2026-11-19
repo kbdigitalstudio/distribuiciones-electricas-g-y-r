@@ -14,8 +14,9 @@ import {
 export async function GET(request: Request): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get("page")) ?? 1;
-    const pageSize = Number(searchParams.get("pageSize")) ?? 20;
+    // ponytail: ver products/route.ts — `Number(null)` es 0 y `take: 0` vaciaba la lista.
+    const page = Number(searchParams.get("page")) || 1;
+    const pageSize = Number(searchParams.get("pageSize")) || 20;
     const search = searchParams.get("search") ?? undefined;
     const parentId = searchParams.get("parentId") ?? undefined;
     // ponytail: ver products/route.ts — `get()` devuelve null si no viene el param.

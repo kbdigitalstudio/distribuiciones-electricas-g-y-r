@@ -14,8 +14,10 @@ import {
 export async function GET(request: Request): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get("page")) ?? 1;
-    const pageSize = Number(searchParams.get("pageSize")) ?? 20;
+    // ponytail: `Number(null)` es 0 (no null), asi que `?? 1` no aplicaba y
+    // pageSize=0 -> take:0 -> la lista siempre salia vacia. `||` cubre null, 0 y NaN.
+    const page = Number(searchParams.get("page")) || 1;
+    const pageSize = Number(searchParams.get("pageSize")) || 20;
     const search = searchParams.get("search") ?? undefined;
     const categoryId = searchParams.get("categoryId") ?? undefined;
     // ponytail: `get()` devuelve null (no undefined) si el param no viene; sin
