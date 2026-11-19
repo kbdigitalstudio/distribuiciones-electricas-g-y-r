@@ -32,14 +32,16 @@ const AUTH_REQUIRED_PATHS = [
 const ADMIN_PATHS = ["/api/roles", "/api/admin"];
 
 /**
- * Middleware de protección de rutas para el backend GYR (Etapas 2, 3 y 4).
+ * Proxy (antes middleware) de protección de rutas para el backend GYR (Etapas 2, 3 y 4).
  *
  * - Verifica sesión válida (cookie HttpOnly) en rutas protegidas.
  * - Permite GET público en rutas de catálogo (productos, categorías).
  * - Valida CSRF (double submit cookie) en métodos que modifican estado.
  * - No modifica archivos originales del proyecto.
+ *
+ * Next.js 16 renombró la convención `middleware` → `proxy` (middleware.ts está deprecado).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
@@ -113,7 +115,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   runtime: "nodejs",
   matcher: [
-    // Aplicar middleware a todas las rutas de API
+    // Aplicar el proxy a todas las rutas de API
     "/api/:path*",
   ],
 };
